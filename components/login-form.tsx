@@ -4,45 +4,83 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { signIn } from "next-auth/react"
+import { useState } from "react"
+import { auth } from "@/lib/firebase"
+import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth"
+import { useRouter } from "next/navigation"
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"form">) {
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    try {
+      await signInWithEmailAndPassword(auth, email, password)
+    } catch (error) {
+      console.error(error)
+      setError("メールアドレスまたはパスワードが間違っています")
+    }
+  }
+
+  const handleGoogleLogin = async () => {
+    try {
+      const result = await signInWithPopup(auth, new GoogleAuthProvider())
+      const firebaseUser = result.user
+      const idToken = await firebaseUser.getIdToken();
+
+      await fetch("/api/auth/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idToken }),
+      });
+
+      router.push("/home")
+    } catch (error) {
+      console.error(error)
+      setError("Googleログインに失敗しました。")
+    }
+  }
+
   return (
-    <form className={cn("flex flex-col gap-6", className)} {...props}>
+    <form className={cn("flex flex-col gap-6", className)} onSubmit={handleSubmit} {...props}>
       <div className="flex flex-col items-center gap-2 text-center">
         <h1 className="text-2xl font-bold">ログイン</h1>
       </div>
       <div className="grid gap-6">
+        {error && (
+          <div className="text-red-500 text-sm text-center">
+            {error}
+          </div>
+        )}
         <div className="grid gap-3">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" placeholder=""/>
+          <Input id="email" disabled type="email" placeholder="" value={email} onChange={(e) => setEmail(e.target.value)} />
         </div>
         <div className="grid gap-3">
           <div className="flex items-center">
             <Label htmlFor="password">Password</Label>
           </div>
-          <Input id="password" type="password"/>
+          <Input id="password" disabled type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
         </div>
-        <a
-            href="#"
-            className="ml-auto text-sm underline-offset-4 hover:underline"
-        >
-        パスワードを忘れた場合
-        </a>
-        <Button type="submit" className="w-full">
+        <Button disabled type="submit" className="w-full">
           Login
         </Button>
         <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
           <span className="bg-background text-muted-foreground relative z-10 px-2">
-            外部連携ログイン
+            外部サービスでログイン
           </span>
         </div>
-        <Button variant="outline"
+        <Button
+            type="button"
+            variant="outline"
             className="w-full"
-            onClick={() => signIn("google")}
+            onClick={handleGoogleLogin}
         >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
             <path
