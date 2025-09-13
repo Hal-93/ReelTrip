@@ -7,11 +7,36 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Season {
+  SPIRING
+  SUMMER
+  AUTUMN
+  WINTER
+}
+
+enum AccountType {
+  ADMIN
+  OFFICIAL
+  GENERAL
+}
+
 model User {
   id          String   @id @default(cuid())
   firebaseUid String   @unique
   email       String   @unique
+  type        AccountType @default(GENERAL)
   name        String?
   avatar      String?
   createdAt   DateTime @default(now())
+}
+
+model Picture {
+  id          String   @id @default(cuid())
+  createdAt   DateTime
+  lat         Float
+  lng         Float
+  location    String
+  season      Season
+  price       Int
+  userId      String  
 }
