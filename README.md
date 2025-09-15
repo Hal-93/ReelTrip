@@ -38,3 +38,11 @@ npx prisma migrate dev --name init
 ```
 npx prisma generate
 ```
+
+## minIO　セットアップ
+### 4-1. ログイン
+http://localhost:9001 にログイン<br>
+ユーザー、パスワードは.env記載<br>
+
+### 4-2. バケットの作成
+WebのGUIからバケットを「reeltrip」という名前で作成
