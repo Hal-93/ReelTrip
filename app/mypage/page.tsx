@@ -1,6 +1,8 @@
 "use client";
 
 import { Pencil, Plus } from "lucide-react";
+import Link from "next/link";
+
 
 export default function MyPage() {
   return (
@@ -35,10 +37,13 @@ export default function MyPage() {
         {/* ニックネーム・編集ボタン */}
         <div className="flex items-center mt-4 space-x-2">
           <h2 className="text-white font-bold text-lg">ニックネーム</h2>
-          <button className="flex items-center text-sm bg-white text-black px-3 py-1 rounded-full shadow">
-            編集
-            <Pencil size={14} className="ml-1" />
-          </button>
+          <Link href="/edit-settings">
+            <button className="flex items-center text-sm bg-white text-black px-3 py-1 rounded-full shadow">
+             編集
+              <Pencil size={14} className="ml-1" />
+            </button>
+          </Link>
+          
         </div>
         <p className="text-white mt-1 text-sm">所持ポイント数 XX</p>
       </div>
