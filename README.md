@@ -1,87 +1,68 @@
-# Welcome to React Router!
+# 開発環境
 
-A modern, production-ready template for building full-stack React applications using React Router.
+開発に必要なデータベースサーバー(PostgreSQL)はDockerコンテナに同梱している。
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/remix-run/react-router-templates/tree/main/default)
+## 🔑 環境変数とAPIキーのセットアップ
 
-## Features
+### 0-1. .envファイルを用意
 
-- 🚀 Server-side rendering
-- ⚡️ Hot Module Replacement (HMR)
-- 📦 Asset bundling and optimization
-- 🔄 Data loading and mutations
-- 🔒 TypeScript by default
-- 🎉 TailwindCSS for styling
-- 📖 [React Router docs](https://reactrouter.com/)
+用意している雛形からコピーをとる
 
-## Getting Started
+```
+cp .env.example .env
+```
 
-### Installation
+### 0-2. .envファイルに必要な環境変数を記述
 
-Install the dependencies:
+PostgreSQL周りはすでに設定済みなので変更する必要なし
+
+## 🛠️ 開発用Dockerセットアップ
+
+### 1-1. Dockerをインストール
+
+https://www.docker.com/ja-jp/<br>
+
+### 1-2. Dockerコンテナの起動
+
+`docker-compose.yaml`と同階層で以下のコマンドを実行し、コンテナを起動
 
 ```bash
-npm install
+docker compose up -d
 ```
 
-### Development
+## 📦 パッケージのインストール
 
-Start the development server with HMR:
+### 2-1. node_modulesのインストール
 
-```bash
-npm run dev
-```
-
-Your application will be available at `http://localhost:5173`.
-
-## Building for Production
-
-Create a production build:
-
-```bash
-npm run build
-```
-
-## Deployment
-
-### Docker Deployment
-
-To build and run using Docker:
-
-```bash
-docker build -t my-app .
-
-# Run the container
-docker run -p 3000:3000 my-app
-```
-
-The containerized application can be deployed to any platform that supports Docker, including:
-
-- AWS ECS
-- Google Cloud Run
-- Azure Container Apps
-- Digital Ocean App Platform
-- Fly.io
-- Railway
-
-### DIY Deployment
-
-If you're familiar with deploying Node applications, the built-in app server is production-ready.
-
-Make sure to deploy the output of `npm run build`
+package.jsonにある依存関係をインストール
 
 ```
-├── package.json
-├── package-lock.json (or pnpm-lock.yaml, or bun.lockb)
-├── build/
-│   ├── client/    # Static assets
-│   └── server/    # Server-side code
+npm i
 ```
 
-## Styling
+## △ Prismaセットアップ
 
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever CSS framework you prefer.
+### 3-1. 初期化
 
----
+Dockerコンテナが起動している状態で以下のコマンドを実行してPrismaを初期化する
 
-Built with ❤️ using React Router.
+```
+npx prisma migrate dev --name init
+```
+
+### 3-2. クライアント生成
+
+```
+npx prisma generate
+```
+
+## minIO　セットアップ
+
+### 4-1. ログイン
+
+http://localhost:9001 にログイン<br>
+ユーザー、パスワードは.env記載<br>
+
+### 4-2. バケットの作成
+
+WebのGUIからバケットを「reeltrip」という名前で作成
