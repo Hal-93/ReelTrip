@@ -1,15 +1,16 @@
-import { useState } from 'react';
-import { Link } from 'react-router';
+import { useState } from "react";
+import { Link } from "react-router";
 
 export default function UserSettingsPage() {
-  const [userId, setUserId] = useState('');
-  const [nickname, setNickname] = useState('');
-  const [prefecture, setPrefecture] = useState('');
+  const [userId, setUserId] = useState("");
+  const [nickname, setNickname] = useState("");
+  const [prefecture, setPrefecture] = useState("");
 
   return (
-    <div className="font-sans flex flex-col items-center min-h-screen p-8 sm:p-20 gap-6
-                    bg-gradient-to-b from-blue-900 via-blue-800 to-blue-700 text-white">
-
+    <div
+      className="font-sans flex flex-col items-center min-h-screen p-8 sm:p-20 gap-6
+                    bg-gradient-to-b from-blue-900 via-blue-800 to-blue-700 text-white"
+    >
       {/* ヘッダー */}
       <div className="flex flex-col items-center gap-2">
         <div className="w-16 h-16 bg-gray-300 rounded-full"></div>
@@ -91,9 +92,7 @@ export default function UserSettingsPage() {
 
         {/* 設定ボタン */}
         <Link to="/preferences">
-          <button
-            className="mt-4 bg-blue-500 text-white px-8 py-3 rounded-lg hover:bg-blue-600"
-          >
+          <button className="mt-4 bg-blue-500 text-white px-8 py-3 rounded-lg hover:bg-blue-600">
             設定
           </button>
         </Link>

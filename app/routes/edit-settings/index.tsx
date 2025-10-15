@@ -1,16 +1,17 @@
-import { useState } from 'react';
+import { useState } from "react";
 //import Image from 'next/image';
-import { Link } from 'react-router';
+import { Link } from "react-router";
 
 export default function ReUserSettingsPage() {
-  const [nickname, setNickname] = useState('user_name');
-  const [email, setEmail] = useState('user_address');
-  const [prefecture, setPrefecture] = useState('東京都');
+  const [nickname, setNickname] = useState("user_name");
+  const [email, setEmail] = useState("user_address");
+  const [prefecture, setPrefecture] = useState("東京都");
 
   return (
-    <div className="font-sans flex flex-col items-center min-h-screen p-8 sm:p-20 gap-6
-                    bg-gradient-to-b from-blue-900 via-blue-800 to-blue-700 text-white">
-
+    <div
+      className="font-sans flex flex-col items-center min-h-screen p-8 sm:p-20 gap-6
+                    bg-gradient-to-b from-blue-900 via-blue-800 to-blue-700 text-white"
+    >
       {/* ヘッダー */}
       <div className="flex flex-col items-center gap-2">
         <div className="w-16 h-16 relative">
@@ -30,7 +31,9 @@ export default function ReUserSettingsPage() {
       <div className="flex flex-col w-full max-w-md bg-black/30 p-4 rounded-lg gap-4">
         <div className="flex justify-center items-center gap-2">
           <span className="text-gray-300 text-sm">ユーザーID</span>
-          <p className="text-lg font-semibold text-center flex-1">test_user_id</p>
+          <p className="text-lg font-semibold text-center flex-1">
+            test_user_id
+          </p>
         </div>
 
         <div className="flex justify-center gap-6 mt-2">
@@ -130,9 +133,7 @@ export default function ReUserSettingsPage() {
 
       {/* 設定変更ボタン（リンクで遷移可能） */}
       <Link to="/preferences">
-        <button
-          className="mt-6 bg-blue-500 text-white px-8 py-3 rounded-lg hover:bg-blue-600"
-        >
+        <button className="mt-6 bg-blue-500 text-white px-8 py-3 rounded-lg hover:bg-blue-600">
           設定変更
         </button>
       </Link>
