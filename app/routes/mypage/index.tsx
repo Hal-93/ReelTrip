@@ -2,7 +2,7 @@
 // import { Pencil, Plus, Home, Heart, Upload, User } from "lucide-react";
 
 import type { FC } from "react";
-import { Pencil, Plus, Home, Heart, Upload, User } from "lucide-react";
+import { Pencil, Plus, User } from "lucide-react";
 
 const MyPage: FC = () => {
   return (
@@ -32,10 +32,7 @@ const MyPage: FC = () => {
       <div className="grid grid-cols-3 gap-2 p-4 mt-6 flex-1">
         <div className="col-span-3 text-white text-sm mb-2">自分の投稿履歴</div>
         {[...Array(6)].map((_, i) => (
-          <div
-            key={i}
-            className="bg-gray-200 aspect-square rounded-lg"
-          />
+          <div key={i} className="bg-gray-200 aspect-square rounded-lg" />
         ))}
       </div>
     </div>
