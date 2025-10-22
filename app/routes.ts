@@ -11,4 +11,5 @@ export default [
   { path: "reels-loading", file: "routes/reels-loading/index.tsx" },
   { path: "user-settings", file: "routes/user-settings/index.tsx" },
   { path: "post", file: "routes/post/index.tsx" },
+  { path: "maptest", file: "routes/maptest/index.tsx" },
 ] satisfies RouteConfig;
