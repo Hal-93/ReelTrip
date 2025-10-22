@@ -44,9 +44,12 @@ export default function SignUpPage() {
         </select>
 
         {/* 新規登録ボタン */}
-        <button className="mt-4 bg-blue-500 text-white px-8 py-3 rounded-lg hover:bg-blue-600">
-          新規登録
-        </button>
+
+        <Link to="/user-settings" className="inline-block w-full">
+          <button className="mt-4 bg-blue-500 text-white px-8 py-3 rounded-lg hover:bg-blue-600 w-full">
+            新規登録
+          </button>
+        </Link>
       </div>
 
       {/* ログインリンク */}
