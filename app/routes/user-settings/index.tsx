@@ -91,8 +91,9 @@ export default function UserSettingsPage() {
         </select>
 
         {/* 設定ボタン */}
-        <Link to="/preferences">
-          <button className="mt-4 bg-blue-500 text-white px-8 py-3 rounded-lg hover:bg-blue-600">
+
+        <Link to="/preferences" className="inline-block w-full">
+          <button className="mt-4 bg-blue-500 text-white px-8 py-3 rounded-lg hover:bg-blue-600 w-full">
             設定
           </button>
         </Link>
