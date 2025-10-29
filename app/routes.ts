@@ -12,10 +12,11 @@ export default [
   { path: "reels-loading", file: "routes/reels-loading/index.tsx" },
   { path: "user-settings", file: "routes/user-settings/index.tsx" },
   { path: "post", file: "routes/post/index.tsx" },
+  { path: "maptest", file: "routes/maptest/index.tsx" },
   { path: "home", file: "routes/home/index.tsx" },
   { path: "upload", file: "routes/upload/index.tsx" },
 
-  // API関連
+  //API関連
   { path: "api/auth/session", file: "routes/api/auth/session/route.ts" },
   { path: "api/auth/logout", file: "routes/api/auth/logout/route.ts" },
 ] satisfies RouteConfig;
