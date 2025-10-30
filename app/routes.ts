@@ -19,4 +19,6 @@ export default [
   //API関連
   { path: "api/auth/session", file: "routes/api/auth/session/route.ts" },
   { path: "api/auth/logout", file: "routes/api/auth/logout/route.ts" },
+  { path: "api/upload", file: "routes/api/upload/route.ts" },
+  { path: "api/files/:objectName", file: "routes/api/files/route.ts" },
 ] satisfies RouteConfig;

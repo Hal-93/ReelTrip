@@ -19,13 +19,13 @@ if (!admin.apps.length) {
 
 /**
  * CookieからFirebaseトークンを検証し、ユーザーを取得
-**/
+ **/
 export async function getUser(request: Request) {
   const cookieHeader = request.headers.get("cookie");
   if (!cookieHeader) return null;
 
   const cookies = Object.fromEntries(
-    cookieHeader.split("; ").map((c) => c.split("="))
+    cookieHeader.split("; ").map((c) => c.split("=")),
   );
 
   const idToken = cookies["token"];
