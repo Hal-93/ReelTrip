@@ -1,16 +1,12 @@
 import React from "react";
+import { Link } from "react-router";
 
 const PointPopup: React.FC = () => {
   return (
     <div
-      style={{
-        background: "linear-gradient(135deg, #0076b6 0%, #297fb8 100%)",
-        height: "100vh",
-        margin: 0,
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
+      className="relative min-h-screen flex items-center justify-center
+                 bg-gradient-to-b from-blue-900 via-blue-800 to-blue-700"
+      style={{ margin: 0 }}
     >
       <div
         style={{
@@ -36,6 +32,7 @@ const PointPopup: React.FC = () => {
           <br />
           もう一度動画を生成しますか？
         </div>
+
         <div
           style={{
             fontSize: 16,
@@ -46,6 +43,7 @@ const PointPopup: React.FC = () => {
         >
           所持ポイント: XXX
         </div>
+
         <div
           style={{
             fontSize: 13,
@@ -57,6 +55,7 @@ const PointPopup: React.FC = () => {
         >
           ＊注意書きあれば
         </div>
+
         <div
           style={{
             display: "flex",
@@ -64,6 +63,7 @@ const PointPopup: React.FC = () => {
             gap: 16,
           }}
         >
+          {/* 戻る */}
           <button
             style={{
               fontSize: 18,
@@ -75,23 +75,28 @@ const PointPopup: React.FC = () => {
               background: "#444",
               color: "#fff",
             }}
+            onClick={() => window.history.back()}
           >
             戻る
           </button>
-          <button
-            style={{
-              fontSize: 18,
-              padding: "12px 0",
-              border: "none",
-              borderRadius: 8,
-              flex: 1,
-              cursor: "pointer",
-              background: "#2196f3",
-              color: "#fff",
-            }}
-          >
-            消費する
-          </button>
+
+          {/* 消費する */}
+          <Link to="/reels-loading" style={{ flex: 1 }}>
+            <button
+              style={{
+                fontSize: 18,
+                padding: "12px 0",
+                border: "none",
+                borderRadius: 8,
+                width: "100%",
+                cursor: "pointer",
+                background: "#2196f3",
+                color: "#fff",
+              }}
+            >
+              消費する
+            </button>
+          </Link>
         </div>
       </div>
     </div>

@@ -15,6 +15,10 @@ export default [
   { path: "map", file: "routes/map/index.tsx" },
   { path: "home", file: "routes/home/index.tsx" },
   { path: "upload", file: "routes/upload/index.tsx" },
+  { path: "popup", file: "routes/popup/index.tsx" },
+  { path: "use-points", file: "routes/use-points/index.tsx" },
+
+
 
   //API関連
   { path: "api/auth/session", file: "routes/api/auth/session/route.ts" },
