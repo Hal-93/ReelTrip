@@ -4,7 +4,7 @@ export function MapHeader() {
   return (
     // 画像の水色部分全体のコンテナ
     // padding, 背景色、角丸は画像に合わせる
-    <div className="flex items-center">
+    <div className="flex items-center pt-2" style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 10 }}>
       <ArrowLeft className="text-whit h-6 w-1/12 cursor-pointer" />
       <div className="bg-[#004f83] bg-opacity-80 p-4 rounded-xl shadow-lg w-10/12">
         {/* 戻るボタンと入力フォームのコンテナ */}

@@ -12,7 +12,7 @@ export default [
   { path: "reels-loading", file: "routes/reels-loading/index.tsx" },
   { path: "user-settings", file: "routes/user-settings/index.tsx" },
   { path: "post", file: "routes/post/index.tsx" },
-  { path: "maptest", file: "routes/maptest/index.tsx" },
+  { path: "map", file: "routes/map/index.tsx" },
   { path: "home", file: "routes/home/index.tsx" },
   { path: "upload", file: "routes/upload/index.tsx" },
 
