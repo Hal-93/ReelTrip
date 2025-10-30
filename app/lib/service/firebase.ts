@@ -15,9 +15,8 @@ const firebaseConfig = {
   storageBucket: "reeltrip-f9801.firebasestorage.app",
   messagingSenderId: "467087005853",
   appId: "1:467087005853:web:7fc9c1ad07910aa39a5c74",
-  measurementId: "G-VHFPVMG6KH"
+  measurementId: "G-VHFPVMG6KH",
 };
-
 
 // すでに初期化済みかどうか確認
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
