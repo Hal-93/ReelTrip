@@ -1,16 +1,16 @@
-import { type ActionFunctionArgs } from 'react-router';
-import { createFile } from '~/lib/models/file.server';
-import { uploadFile } from '~/lib/service/minio';
+import { type ActionFunctionArgs } from "react-router";
+import { createFile } from "~/lib/models/file.server";
+import { uploadFile } from "~/lib/service/minio";
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
-  const file = formData.get('file');
+  const file = formData.get("file");
 
   if (!(file instanceof File)) {
     return { status: 400 };
   }
 
-  const userId = request.headers.get('x-user-id') || '';
+  const userId = request.headers.get("x-user-id") || "";
 
   try {
     const fileName = file.name;

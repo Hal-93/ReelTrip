@@ -8,11 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { ScrollArea } from "~/components/ui/scroll-area";
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from "~/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger } from "~/components/ui/sheet";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await getUser(request);
@@ -31,12 +27,14 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <header className="flex items-center justify-between px-4 py-3 border-b lg:hidden">
-        <img src="/icon.png" width={32} height={32}/>
+        <img src="/icon.png" width={32} height={32} />
         <Sheet>
           <SheetTrigger asChild>
             <Avatar className="h-10 w-10">
               <AvatarImage src={user.avatar || ""} />
-              <AvatarFallback>{user.name?.slice(0, 2)?.toUpperCase() ?? "US"}</AvatarFallback>
+              <AvatarFallback>
+                {user.name?.slice(0, 2)?.toUpperCase() ?? "US"}
+              </AvatarFallback>
             </Avatar>
           </SheetTrigger>
           <SheetContent side="left" className="w-80 p-4">
@@ -44,7 +42,9 @@ export default function Home() {
               <div className="flex items-center gap-3">
                 <Avatar className="h-12 w-12">
                   <AvatarImage src={user.avatar || ""} />
-                  <AvatarFallback>{user.name?.slice(0, 2)?.toUpperCase() ?? "US"}</AvatarFallback>
+                  <AvatarFallback>
+                    {user.name?.slice(0, 2)?.toUpperCase() ?? "US"}
+                  </AvatarFallback>
                 </Avatar>
                 <div>
                   <p className="font-semibold">{user.name}</p>
@@ -76,8 +76,12 @@ export default function Home() {
               </div>
               <ScrollArea className="h-28 rounded-sm border bg-muted/30">
                 <div className="p-2 space-y-2">
-                  <p className="text-xs text-muted-foreground">ここにお知らせを表示できます。</p>
-                  <p className="text-xs text-muted-foreground">最近アップロードしたファイルの処理状況など。</p>
+                  <p className="text-xs text-muted-foreground">
+                    ここにお知らせを表示できます。
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    最近アップロードしたファイルの処理状況など。
+                  </p>
                 </div>
               </ScrollArea>
             </div>
@@ -90,7 +94,9 @@ export default function Home() {
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 あなたの投稿
-                <span className="text-sm text-muted-foreground">{files.length} 件</span>
+                <span className="text-sm text-muted-foreground">
+                  {files.length} 件
+                </span>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -98,11 +104,19 @@ export default function Home() {
                 {files.map((file) => (
                   <Card key={file.id} className="overflow-hidden p-0">
                     <div className="aspect-square bg-muted/40">
-                      <img src={file.downloadLink} alt={file.fileName ?? ""} className="object-cover w-full h-full" />
+                      <img
+                        src={file.downloadLink}
+                        alt={file.fileName ?? ""}
+                        className="object-cover w-full h-full"
+                      />
                     </div>
                     <div className="p-2">
-                      <p className="text-xs font-medium truncate">{file.fileName ?? "Untitled"}</p>
-                      <p className="text-[10px] text-muted-foreground">{new Date(file.createdAt).toLocaleString()}</p>
+                      <p className="text-xs font-medium truncate">
+                        {file.fileName ?? "Untitled"}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground">
+                        {new Date(file.createdAt).toLocaleString()}
+                      </p>
                     </div>
                   </Card>
                 ))}
@@ -124,7 +138,9 @@ export default function Home() {
               <div className="flex items-center gap-3">
                 <Avatar className="h-12 w-12">
                   <AvatarImage src={user.avatar || ""} />
-                  <AvatarFallback>{user.name?.slice(0, 2)?.toUpperCase() ?? "US"}</AvatarFallback>
+                  <AvatarFallback>
+                    {user.name?.slice(0, 2)?.toUpperCase() ?? "US"}
+                  </AvatarFallback>
                 </Avatar>
                 <div>
                   <p className="font-semibold">{user.name}</p>
@@ -155,8 +171,12 @@ export default function Home() {
               </div>
               <ScrollArea className="h-32 rounded-sm border bg-muted/30">
                 <div className="p-2 space-y-2">
-                  <p className="text-xs text-muted-foreground">ここにお知らせを表示できます。</p>
-                  <p className="text-xs text-muted-foreground">運営からのお知らせや、最近アップロードしたファイルの処理状況など。</p>
+                  <p className="text-xs text-muted-foreground">
+                    ここにお知らせを表示できます。
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    運営からのお知らせや、最近アップロードしたファイルの処理状況など。
+                  </p>
                 </div>
               </ScrollArea>
             </CardContent>

@@ -1,7 +1,5 @@
-"use client";
-
 import React, { useRef, useState } from "react";
-import * as ExifReader from "exifreader";
+import * as exifr from "exifr";
 import { getUser } from "~/lib/models/auth.server";
 import { redirect, useLoaderData, type LoaderFunctionArgs } from "react-router";
 import {
@@ -27,17 +25,146 @@ export default function Upload() {
   const [message, setMessage] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isExifOpen, setIsExifOpen] = useState(false);
-  const [exifInfo, setExifInfo] = useState<Record<string, string | number> | null>(null);
+  const [exifInfo, setExifInfo] = useState<Record<
+    string,
+    string | number
+  > | null>(null);
   const [exifError, setExifError] = useState<string | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isPreviewLoading, setIsPreviewLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (typeof window === 'undefined') return;
+
     const file = e.target.files && e.target.files[0];
-    if (file && file.type.startsWith("image/")) {
+    if (!file) return;
+
+    if (file.name.toLowerCase().endsWith('.heic')) {
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+
+        // ① exifr を使って EXIF（GPS含む）情報を抽出
+        const meta = await exifr.parse(arrayBuffer, {
+          tiff: true,
+          exif: true,
+          gps: true,
+        });
+        console.log("EXIF data:", meta); // デバッグ用
+
+        // ② HEIC -> JPEG変換
+        const { default: heic2any } = await import('heic2any');
+        const result = await heic2any({ blob: new Blob([arrayBuffer]), toType: 'image/jpeg' });
+        const convertedBlob = Array.isArray(result) ? result[0] : result;
+        const convertedFile = new File([convertedBlob], file.name.replace(/\.heic$/i, '.jpg'), {
+          type: 'image/jpeg',
+        });
+        setSelectedFile(convertedFile);
+
+        // ③ プレビュー作成
+        setIsPreviewLoading(true);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setPreviewUrl(reader.result as string);
+          setIsPreviewLoading(false);
+        };
+        reader.readAsDataURL(convertedFile);
+
+        // --- ④ exifrから抽出したGPS情報をnormalizedに格納
+        const normalized: Record<string, string | number> = {};
+        if (meta?.latitude && meta?.longitude) {
+          normalized['GPSLatitude(dec)'] = meta.latitude;
+          normalized['GPSLongitude(dec)'] = meta.longitude;
+          normalized['GPS'] = `${meta.latitude}, ${meta.longitude}`;
+        } else {
+          normalized['GPS'] = '情報なし';
+        }
+
+        if (meta?.Make) normalized['Make'] = meta.Make;
+        if (meta?.Model) normalized['Model'] = meta.Model;
+        if (meta?.DateTimeOriginal) normalized['撮影日時(DateTimeOriginal)'] = String(meta.DateTimeOriginal);
+
+        // --- 幅と高さの取得 ---
+        if (!meta?.ExifImageWidth && !meta?.imageWidth) {
+          const image = new Image();
+          const blobUrl = URL.createObjectURL(convertedBlob);
+          await new Promise((resolve) => {
+            image.onload = () => {
+              normalized['Image Width'] = image.width;
+              normalized['Image Height'] = image.height;
+              URL.revokeObjectURL(blobUrl);
+              resolve(null);
+            };
+            image.src = blobUrl;
+          });
+        } else {
+          normalized['Image Width'] = meta.ExifImageWidth ?? meta.imageWidth ?? '情報なし';
+          normalized['Image Height'] = meta.ExifImageHeight ?? meta.imageHeight ?? '情報なし';
+        }
+
+        setExifInfo(normalized);
+        setExifError(null);
+      } catch (err) {
+        console.error('HEIC変換エラー:', err);
+        setMessage('HEIC画像の変換またはEXIF抽出に失敗しました。');
+        setSelectedFile(null);
+      }
+      return;
+    }
+
+    if (file.type.startsWith('image/')) {
       setSelectedFile(file);
+      setIsPreviewLoading(true);
       const reader = new FileReader();
-      reader.onloadend = () => {
+      reader.onloadend = async () => {
         setPreviewUrl(reader.result as string);
+        setIsPreviewLoading(false);
+        try {
+          const arrayBuffer = await file.arrayBuffer();
+          const meta = await exifr.parse(arrayBuffer, {
+            tiff: true,
+            exif: true,
+            gps: true,
+          });
+          console.log('EXIF data:', meta);
+
+          const normalized: Record<string, string | number> = {};
+          if (meta?.latitude && meta?.longitude) {
+            normalized['GPSLatitude(dec)'] = meta.latitude;
+            normalized['GPSLongitude(dec)'] = meta.longitude;
+            normalized['GPS'] = `${meta.latitude}, ${meta.longitude}`;
+          } else {
+            normalized['GPS'] = '情報なし';
+          }
+
+          normalized['Make'] = meta?.Make ?? '情報なし';
+          normalized['Model'] = meta?.Model ?? '情報なし';
+          normalized['撮影日時(DateTimeOriginal)'] = meta?.DateTimeOriginal ? String(meta.DateTimeOriginal) : '情報なし';
+
+          if (!meta?.ExifImageWidth && !meta?.imageWidth) {
+            const image = new Image();
+            const blobUrl = URL.createObjectURL(file);
+            await new Promise((resolve) => {
+              image.onload = () => {
+                normalized['Image Width'] = image.width;
+                normalized['Image Height'] = image.height;
+                URL.revokeObjectURL(blobUrl);
+                resolve(null);
+              };
+              image.src = blobUrl;
+            });
+          } else {
+            normalized['Image Width'] = meta.ExifImageWidth ?? meta.imageWidth ?? '情報なし';
+            normalized['Image Height'] = meta.ExifImageHeight ?? meta.imageHeight ?? '情報なし';
+          }
+
+          setExifInfo(normalized);
+          setExifError(null);
+        } catch (err) {
+          console.error('EXIF抽出エラー:', err);
+          setExifInfo(null);
+          setExifError('EXIF情報の抽出に失敗しました。');
+        }
       };
       reader.readAsDataURL(file);
     } else {
@@ -45,113 +172,121 @@ export default function Upload() {
       setPreviewUrl(null);
     }
   };
+  
+  type ExifrMeta = Partial<{
+    latitude: number;
+    longitude: number;
+    GPSLatitude: number[];
+    GPSLongitude: number[];
+    Make: string;
+    Model: string;
+    DateTimeOriginal: Date | string;
+    CreateDate: Date | string;
+    ModifyDate: Date | string;
+    ExifImageWidth: number;
+    ExifImageHeight: number;
+    imageWidth: number;
+    imageHeight: number;
+    Orientation: string;
+    FileType: string;
+  }>;
 
-  const extractBasicExif = async (file: File): Promise<Record<string, string | number> | null> => {
+  const extractBasicExif = async (
+    file: File,
+  ): Promise<Record<string, string | number> | null> => {
     const arrayBuffer = await file.arrayBuffer();
-    const tags = await ExifReader.load(arrayBuffer);
+
+    let meta: ExifrMeta | null = null;
+    try {
+      meta = await exifr.parse(arrayBuffer, {
+        tiff: true,
+        exif: true,
+        gps: true,
+        mergeOutput: true,
+      });
+      console.log("EXIF meta:", meta);
+    } catch (err) {
+      console.error("EXIF読み込みエラー:", err);
+      return null;
+    }
+
+    if (!meta) return null;
+
     const normalized: Record<string, string | number> = {};
 
-    const latTag = tags.GPSLatitude || tags.gpsLatitude;
-    const lonTag = tags.GPSLongitude || tags.gpsLongitude;
-    const latRef = tags.GPSLatitudeRef || tags.gpsLatitudeRef;
-    const lonRef = tags.GPSLongitudeRef || tags.gpsLongitudeRef;
-
-    const toDecimal = (values: number[], ref?: string) => {
-      const [deg, min, sec] = values;
-      let dec = deg + min / 60 + sec / 3600;
-      if (ref && (ref === "S" || ref === "W")) {
-        dec = -dec;
-      }
-      return dec;
-    };
-
-    const normalizeGpsArray = (raw: unknown): number[] | null => {
-      if (!Array.isArray(raw)) return null;
-      if (raw.length > 0 && typeof raw[0] === "number") {
-        return raw as number[];
-      }
-      const nums: number[] = [];
-      for (const part of raw) {
-        if (Array.isArray(part) && typeof part[0] === "number") {
-          nums.push(part[0]);
-        } else {
-          return null;
-        }
-      }
-      return nums.length ? nums : null;
-    };
-
-    const latArr = latTag ? normalizeGpsArray(latTag.value) : null;
-    const lonArr = lonTag ? normalizeGpsArray(lonTag.value) : null;
-
-    if (latArr && lonArr) {
-      const lat = toDecimal(latArr, latRef?.value as string | undefined);
-      const lon = toDecimal(lonArr, lonRef?.value as string | undefined);
-      normalized["GPSLatitude(dec)"] = lat;
-      normalized["GPSLongitude(dec)"] = lon;
-      normalized["GPS"] = `${lat}, ${lon}`;
+    // --- GPS情報 ---
+    const lat = meta.latitude ?? meta.GPSLatitude;
+    const lon = meta.longitude ?? meta.GPSLongitude;
+    if (lat && lon) {
+      const toDecimal = (val: number | number[]): number => {
+        if (Array.isArray(val) && typeof val[0] === "number")
+          return val[0] + val[1] / 60 + val[2] / 3600;
+        return typeof val === "number" ? val : Number(val);
+      };
+      normalized["GPSLatitude(dec)"] = toDecimal(lat);
+      normalized["GPSLongitude(dec)"] = toDecimal(lon);
+      normalized["GPS"] = `${toDecimal(lat)}, ${toDecimal(lon)}`;
     } else {
       normalized["GPS"] = "情報なし";
     }
 
-    const dto = (tags.DateTimeOriginal || tags.dateTimeOriginal)?.description || (tags.DateTimeOriginal || tags.dateTimeOriginal)?.value;
-    const dtd = (tags.DateTimeDigitized || tags.dateTimeDigitized)?.description || (tags.DateTimeDigitized || tags.dateTimeDigitized)?.value;
-    const dt  = (tags.DateTime || tags.dateTime)?.description || (tags.DateTime || tags.dateTime)?.value;
+    // --- 日付情報 ---
+    const formatDate = (val?: Date | string) => {
+      if (!val) return "情報なし";
+      try {
+        return new Date(val).toLocaleString();
+      } catch {
+        return String(val);
+      }
+    };
 
-    if (dto) {
-      normalized["撮影日時(DateTimeOriginal)"] = String(dto);
-    }
-    if (dtd) {
-      normalized["デジタル化日時(DateTimeDigitized)"] = String(dtd);
-    }
-    if (dt) {
-      normalized["更新日時(DateTime)"] = String(dt);
-    }
+    normalized["撮影日時(DateTimeOriginal)"] = formatDate(meta.DateTimeOriginal);
+    normalized["デジタル化日時(DateTimeDigitized)"] = formatDate(meta.CreateDate);
+    normalized["更新日時(DateTime)"] = formatDate(meta.ModifyDate);
 
-    for (const [key, tag] of Object.entries(tags)) {
-      if (!tag) continue;
-      if (key === "GPSLatitude" || key === "gpsLatitude" || key === "GPSLongitude" || key === "gpsLongitude" || key === "GPSLatitudeRef" || key === "gpsLatitudeRef" || key === "GPSLongitudeRef" || key === "gpsLongitudeRef") {
-        continue;
-      }
-      if (typeof tag.value === "string" || typeof tag.value === "number") {
-        normalized[key] = tag.value;
-      } else if (Array.isArray(tag.value)) {
-        const arr = tag.value as unknown[];
-        normalized[key] = arr.map((v) => (typeof v === "string" || typeof v === "number" ? v : String(v))).join(", ");
-      } else if (tag.description) {
-        normalized[key] = tag.description;
-      } else {
-        normalized[key] = "[unsupported]";
-      }
+    // --- その他 ---
+    if (!meta?.ExifImageWidth && !meta?.imageWidth) {
+      const image = new Image();
+      const blobUrl = URL.createObjectURL(file);
+      await new Promise((resolve) => {
+        image.onload = () => {
+          normalized['Image Width'] = image.width;
+          normalized['Image Height'] = image.height;
+          URL.revokeObjectURL(blobUrl);
+          resolve(null);
+        };
+        image.src = blobUrl;
+      });
+    } else {
+      normalized['Image Width'] = meta.ExifImageWidth ?? meta.imageWidth ?? "情報なし";
+      normalized['Image Height'] = meta.ExifImageHeight ?? meta.imageHeight ?? "情報なし";
     }
-    const requiredKeys = [
-      "GPS",
-      "撮影日時(DateTimeOriginal)",
-      "デジタル化日時(DateTimeDigitized)",
-      "更新日時(DateTime)",
-      "Image Width",
-      "Image Height",
-      "FileType",
-      "Make",
-      "Model",
-      "Orientation",
-    ];
-    for (const k of requiredKeys) {
-      if (!(k in normalized)) {
-        normalized[k] = "情報なし";
-      }
-    }
+    normalized["Make"] = meta.Make ?? "情報なし";
+    normalized["Model"] = meta.Model ?? "情報なし";
+    normalized["Orientation"] = meta.Orientation ?? "情報なし";
+    normalized["FileType"] = meta.FileType ?? "jpeg";
+
     return Object.keys(normalized).length > 0 ? normalized : null;
   };
 
   const handleAnalyze = async () => {
     setExifError(null);
+    setIsAnalyzing(true);
+
     if (!selectedFile) {
       setExifInfo(null);
       setExifError("ファイルが選択されていません。");
       setIsExifOpen(true);
+      setIsAnalyzing(false);
       return;
     }
+
+    if (exifInfo) {
+      setIsExifOpen(true);
+      setIsAnalyzing(false);
+      return;
+    }
+
     try {
       const info = await extractBasicExif(selectedFile);
       setExifInfo(info);
@@ -163,6 +298,8 @@ export default function Upload() {
       setExifInfo(null);
       setExifError(err instanceof Error ? err.message : "解析に失敗しました。");
       setIsExifOpen(true);
+    } finally {
+      setIsAnalyzing(false);
     }
   };
 
@@ -231,7 +368,12 @@ export default function Upload() {
               cursor-pointer"
           />
         </label>
-        {previewUrl && (
+        {isPreviewLoading ? (
+          <div className="flex justify-center items-center py-6">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900"></div>
+            <span className="ml-2 text-gray-700 text-sm">プレビューを生成中...</span>
+          </div>
+        ) : previewUrl && (
           <div className="mb-6 flex justify-center rounded-sm border border-gray-300 overflow-hidden max-w-xs max-h-72">
             <img
               src={previewUrl}
@@ -247,20 +389,29 @@ export default function Upload() {
             {message}
           </p>
         )}
-        <button
-          type="button"
-          onClick={handleAnalyze}
-          className="w-full mb-3 bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold py-2 px-4 rounded-md transition-colors duration-200"
-        >
-          分析
-        </button>
-        <button
-          type="submit"
-          disabled={isUploading}
-          className={`w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-sm transition-colors duration-200 ${isUploading ? "opacity-50 cursor-not-allowed" : ""}`}
-        >
-          {isUploading ? "アップロード中..." : "アップロード"}
-        </button>
+        {!isAnalyzing ? (
+          <>
+            <button
+              type="button"
+              onClick={handleAnalyze}
+              className="w-full mb-3 bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold py-2 px-4 rounded-md transition-colors duration-200"
+            >
+              分析
+            </button>
+            <button
+              type="submit"
+              disabled={isUploading}
+              className={`w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-sm transition-colors duration-200 ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              {isUploading ? 'アップロード中...' : 'アップロード'}
+            </button>
+          </>
+        ) : (
+          <div className="flex justify-center items-center py-4">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900"></div>
+            <span className="ml-2 text-gray-700 text-sm">分析中...</span>
+          </div>
+        )}
       </form>
       <Dialog open={isExifOpen} onOpenChange={setIsExifOpen}>
         <DialogContent>
@@ -280,7 +431,9 @@ export default function Upload() {
               ))}
             </ul>
           ) : !exifError ? (
-            <p className="text-sm text-muted-foreground">情報はありませんでした。</p>
+            <p className="text-sm text-muted-foreground">
+              情報はありませんでした。
+            </p>
           ) : null}
         </DialogContent>
       </Dialog>
