@@ -44,15 +44,12 @@ export default function Upload() {
       try {
         const arrayBuffer = await file.arrayBuffer();
 
-        // ① exifr を使って EXIF（GPS含む）情報を抽出
         const meta = await exifr.parse(arrayBuffer, {
           tiff: true,
           exif: true,
           gps: true,
         });
-        console.log("EXIF data:", meta); // デバッグ用
 
-        // ② HEIC -> JPEG変換
         const { default: heic2any } = await import("heic2any");
         const result = await heic2any({
           blob: new Blob([arrayBuffer]),
@@ -68,7 +65,6 @@ export default function Upload() {
         );
         setSelectedFile(convertedFile);
 
-        // ③ プレビュー作成
         setIsPreviewLoading(true);
         const reader = new FileReader();
         reader.onloadend = () => {
@@ -77,7 +73,6 @@ export default function Upload() {
         };
         reader.readAsDataURL(convertedFile);
 
-        // --- ④ exifrから抽出したGPS情報をnormalizedに格納
         const normalized: Record<string, string | number> = {};
         if (meta?.latitude && meta?.longitude) {
           normalized["GPSLatitude(dec)"] = meta.latitude;
@@ -94,7 +89,6 @@ export default function Upload() {
             meta.DateTimeOriginal,
           );
 
-        // --- 幅と高さの取得 ---
         if (!meta?.ExifImageWidth && !meta?.imageWidth) {
           const image = new Image();
           const blobUrl = URL.createObjectURL(convertedBlob);
@@ -230,7 +224,6 @@ export default function Upload() {
 
     const normalized: Record<string, string | number> = {};
 
-    // --- GPS情報 ---
     const lat = meta.latitude ?? meta.GPSLatitude;
     const lon = meta.longitude ?? meta.GPSLongitude;
     if (lat && lon) {
@@ -246,7 +239,6 @@ export default function Upload() {
       normalized["GPS"] = "情報なし";
     }
 
-    // --- 日付情報 ---
     const formatDate = (val?: Date | string) => {
       if (!val) return "情報なし";
       try {
@@ -264,7 +256,6 @@ export default function Upload() {
     );
     normalized["更新日時(DateTime)"] = formatDate(meta.ModifyDate);
 
-    // --- その他 ---
     if (!meta?.ExifImageWidth && !meta?.imageWidth) {
       const image = new Image();
       const blobUrl = URL.createObjectURL(file);
@@ -337,6 +328,25 @@ export default function Upload() {
 
     const formData = new FormData();
     formData.append("file", selectedFile);
+
+    if (exifInfo) {
+      if (exifInfo["GPSLatitude(dec)"] !== undefined) {
+        formData.append("lat", String(exifInfo["GPSLatitude(dec)"]));
+      }
+      if (exifInfo["GPSLongitude(dec)"] !== undefined) {
+        formData.append("lng", String(exifInfo["GPSLongitude(dec)"]));
+      }
+      if (exifInfo["Image Width"] !== undefined) {
+        formData.append("width", String(exifInfo["Image Width"]));
+      }
+      if (exifInfo["Image Height"] !== undefined) {
+        formData.append("height", String(exifInfo["Image Height"]));
+      }
+      if (exifInfo["撮影日時(DateTimeOriginal)"] !== undefined) {
+        formData.append("date", String(exifInfo["撮影日時(DateTimeOriginal)"]));
+      }
+      formData.append("price", "0");
+    }
 
     try {
       const response = await fetch("/api/upload", {

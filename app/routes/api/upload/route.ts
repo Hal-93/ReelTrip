@@ -1,5 +1,6 @@
 import { type ActionFunctionArgs } from "react-router";
 import { createFile } from "~/lib/models/file.server";
+import { createPicture } from "~/lib/models/picture.server";
 import { uploadFile } from "~/lib/service/minio";
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -17,12 +18,37 @@ export async function action({ request }: ActionFunctionArgs) {
     const timestamp = Date.now();
     const objectName = `${timestamp}_${fileName}`;
 
+    const lat = formData.get("lat");
+    const lng = formData.get("lng");
+    const width = formData.get("width");
+    const height = formData.get("height");
+    const date = formData.get("date");
+    const price = formData.get("price");
+
     await uploadFile(file, objectName);
 
     const downloadLink = `/api/files/${objectName}`;
 
     const result = await createFile(userId, fileName, objectName, downloadLink);
-    return result;
+
+    let pictureResult;
+    try {
+      pictureResult = await createPicture({
+        userId,
+        fileId: result.id,
+        lat: Number(lat),
+        lng: Number(lng),
+        width: Number(width),
+        height: Number(height),
+        date: String(date),
+        price: price ? Number(price) : undefined,
+      });
+    } catch (error) {
+      console.error(error);
+      return Response.json({ message: "画像登録に失敗しました。" }, { status: 500 });
+    }
+
+    return Response.json({ file: result, picture: pictureResult });
   } catch (error) {
     console.error(error);
     return { status: 500 };

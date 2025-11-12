@@ -1,14 +1,47 @@
 import { useState } from "react";
-//import Image from 'next/image';
-import { Link } from "react-router";
+import { redirect } from "react-router";
+import { getUser } from "~/lib/models/auth.server";
+import { getUserById, updateUser } from "~/lib/models/user.server";
+import { Form, useLoaderData } from "react-router";
+
+
+export async function loader({ request }: { request: Request }) {
+  const user = await getUser(request);
+  if (!user) throw redirect("/login");
+
+  const userRecord = await getUserById(user.id);
+  if (!userRecord) throw new Response("User not found", { status: 404 });
+
+  return { user: userRecord };
+}
+
+export async function action({ request }: { request: Request }) {
+  const formData = await request.formData();
+  const nickname = formData.get("nickname") as string;
+  const email = formData.get("email") as string;
+  const location = formData.get("prefecture") as string;
+
+  const user = await getUser(request);
+  if (!user) throw redirect("/login");
+
+  await updateUser({
+    id: user.id,
+    name: nickname,
+    email,
+    location,
+  });
+  return redirect("/settings");
+}
 
 export default function ReUserSettingsPage() {
-  const [nickname, setNickname] = useState("user_name");
-  const [email, setEmail] = useState("user_address");
-  const [prefecture, setPrefecture] = useState("東京都");
+  const { user } = useLoaderData<typeof loader>();
+  const [nickname, setNickname] = useState(user.name || "");
+  const [email, setEmail] = useState(user.email || "");
+  const [prefecture, setPrefecture] = useState(user.location || "");
 
   return (
-    <div
+    <Form
+      method="post"
       className="font-sans flex flex-col items-center min-h-screen p-8 sm:p-20 gap-6
                     bg-gradient-to-b from-blue-900 via-blue-800 to-blue-700 text-white"
     >
@@ -27,12 +60,11 @@ export default function ReUserSettingsPage() {
         <h1 className="text-3xl font-bold">ユーザー設定変更</h1>
       </div>
 
-      {/* ユーザーID + ユーザー／自治体 */}
       <div className="flex flex-col w-full max-w-md bg-black/30 p-4 rounded-lg gap-4">
         <div className="flex justify-center items-center gap-2">
           <span className="text-gray-300 text-sm">ユーザーID</span>
           <p className="text-lg font-semibold text-center flex-1">
-            test_user_id
+            {user.id}
           </p>
         </div>
 
@@ -53,7 +85,8 @@ export default function ReUserSettingsPage() {
         <label className="text-gray-300 text-sm">ニックネーム</label>
         <input
           type="text"
-          value={nickname}
+          name="nickname"
+          value={nickname ?? ""}
           onChange={(e) => setNickname(e.target.value)}
           placeholder="例: TaroToyou"
           className="px-4 py-3 rounded-lg bg-black/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -65,7 +98,8 @@ export default function ReUserSettingsPage() {
         <label className="text-gray-300 text-sm">メールアドレス</label>
         <input
           type="email"
-          value={email}
+          name="email"
+          value={email ?? ""}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="例: example@gmail.com"
           className="px-4 py-3 rounded-lg bg-black/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -76,7 +110,8 @@ export default function ReUserSettingsPage() {
       <div className="flex flex-col w-full max-w-md bg-black/30 p-4 rounded-lg gap-2">
         <label className="text-gray-300 text-sm">居住地</label>
         <select
-          value={prefecture}
+          name="prefecture"
+          value={prefecture ?? ""}
           onChange={(e) => setPrefecture(e.target.value)}
           className="px-4 py-3 rounded-lg bg-black/20 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
@@ -131,12 +166,12 @@ export default function ReUserSettingsPage() {
         </select>
       </div>
 
-      {/* 設定変更ボタン（リンクで遷移可能） */}
-      <Link to="/preferences">
-        <button className="mt-6 bg-blue-500 text-white px-8 py-3 rounded-lg hover:bg-blue-600">
-          設定変更
-        </button>
-      </Link>
-    </div>
+      <button
+        type="submit"
+        className="mt-6 bg-blue-500 text-white px-8 py-3 rounded-lg hover:bg-blue-600"
+      >
+        設定を保存
+      </button>
+    </Form>
   );
 }

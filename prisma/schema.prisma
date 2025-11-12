@@ -20,9 +20,15 @@ model User {
   type        AccountType @default(GENERAL)
   name        String?
   avatar      String?
+  location    String      @default("")
+
   files       File[]
-  createdAt   DateTime    @default(now())
   pictures    Picture[]
+
+  followers   Follows[]   @relation("followers")
+  following   Follows[]   @relation("following")
+
+  createdAt   DateTime    @default(now())
 }
 
 model Picture {
@@ -33,7 +39,6 @@ model Picture {
   height   Int
   lat      Float
   lng      Float
-  location String
   date     String
 
   price Int?
@@ -56,4 +61,17 @@ model File {
   userId   String
   user     User      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   pictures Picture[]
+}
+
+model Follows {
+  id          String   @id @default(cuid())
+  followerId  String
+  followingId String
+
+  follower    User     @relation("following", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("followers", fields: [followingId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
+
+  @@unique([followerId, followingId])
 }

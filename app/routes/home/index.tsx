@@ -1,14 +1,15 @@
 import { useLoaderData, redirect } from "react-router";
 import { getUser } from "~/lib/models/auth.server";
-import { getFilesByUser } from "~/lib/models/file.server";
-import { Pencil } from "lucide-react";
-import { Link } from "react-router";
 import type { LoaderFunctionArgs } from "react-router";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { ScrollArea } from "~/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetTrigger } from "~/components/ui/sheet";
+import { useState } from "react";
+import { Dialog, DialogContent, DialogTrigger } from "~/components/ui/dialog";
+import { UserSidebar } from "~/components/basic/usermenu";
+import { getFilesByUser } from "~/lib/models/file.server";
+import { Link } from "react-router";
+import { Plus } from "lucide-react";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await getUser(request);
@@ -23,6 +24,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export default function Home() {
   const { user, files } = useLoaderData<typeof loader>();
+  const [selectedImage, setSelectedImage] = useState<typeof files[0] | null>(null);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -38,53 +40,7 @@ export default function Home() {
             </Avatar>
           </SheetTrigger>
           <SheetContent side="left" className="w-80 p-4">
-            <div className="mt-4 space-y-4">
-              <div className="flex items-center gap-3">
-                <Avatar className="h-12 w-12">
-                  <AvatarImage src={user.avatar || ""} />
-                  <AvatarFallback>
-                    {user.name?.slice(0, 2)?.toUpperCase() ?? "US"}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="font-semibold">{user.name}</p>
-                  <p className="text-sm text-muted-foreground">{user.email}</p>
-                </div>
-              </div>
-              <Button variant="outline" asChild className="w-full">
-                <Link to="/edit-settings" className="flex items-center gap-1">
-                  <Pencil className="h-4 w-4" />
-                  編集
-                </Link>
-              </Button>
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">統計</p>
-                <div className="flex gap-3">
-                  <div>
-                    <p className="text-base font-semibold">{files.length}</p>
-                    <p className="text-xs text-muted-foreground">投稿数</p>
-                  </div>
-                  <div>
-                    <p className="text-base font-semibold">0</p>
-                    <p className="text-xs text-muted-foreground">フォロー</p>
-                  </div>
-                  <div>
-                    <p className="text-base font-semibold">0</p>
-                    <p className="text-xs text-muted-foreground">フォロワー</p>
-                  </div>
-                </div>
-              </div>
-              <ScrollArea className="h-28 rounded-sm border bg-muted/30">
-                <div className="p-2 space-y-2">
-                  <p className="text-xs text-muted-foreground">
-                    ここにお知らせを表示できます。
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    最近アップロードしたファイルの処理状況など。
-                  </p>
-                </div>
-              </ScrollArea>
-            </div>
+            <UserSidebar user={user} filesCount={files.length} />
           </SheetContent>
         </Sheet>
       </header>
@@ -100,29 +56,44 @@ export default function Home() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-4 gap-[1px] bg-white">
                 {files.map((file) => (
-                  <Card key={file.id} className="overflow-hidden p-0">
-                    <div className="aspect-square bg-muted/40">
-                      <img
-                        src={file.downloadLink}
-                        alt={file.fileName ?? ""}
-                        className="object-cover w-full h-full"
-                      />
-                    </div>
-                    <div className="p-2">
-                      <p className="text-xs font-medium truncate">
-                        {file.fileName ?? "Untitled"}
-                      </p>
-                      <p className="text-[10px] text-muted-foreground">
-                        {new Date(file.createdAt).toLocaleString()}
-                      </p>
-                    </div>
-                  </Card>
+                  <Dialog key={file.id} open={selectedImage?.id === file.id} onOpenChange={(open) => {
+                    if (!open) setSelectedImage(null);
+                  }}>
+                    <DialogTrigger asChild>
+                      <div
+                        className="aspect-square overflow-hidden cursor-pointer"
+                        onClick={() => setSelectedImage(file)}
+                      >
+                        <img
+                          src={file.downloadLink}
+                          alt={file.fileName ?? ""}
+                          className="object-cover w-full h-full"
+                        />
+                      </div>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-3xl max-h-[80vh] overflow-auto">
+                      {selectedImage && (
+                        <div className="flex flex-col items-center space-y-4">
+                          <img
+                            src={selectedImage.downloadLink}
+                            alt={selectedImage.fileName ?? ""}
+                            className="max-w-full max-h-[60vh] object-contain rounded"
+                          />
+                          <div className="w-full px-2">
+                            <p className="text-sm text-muted-foreground">
+                              投稿日: {selectedImage.createdAt ? new Date(selectedImage.createdAt).toLocaleString() : "---"} -by @{selectedImage.userId}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </DialogContent>
+                  </Dialog>
                 ))}
                 {files.length === 0 ? (
                   <p className="text-sm text-muted-foreground col-span-full">
-                    まだ投稿がありません。右上の「アップロード」から追加してください。
+                    まだ投稿がありません。「アップロード」から追加してください。
                   </p>
                 ) : null}
               </div>
@@ -131,58 +102,15 @@ export default function Home() {
         </div>
         <div className="hidden lg:block lg:w-1/3">
           <Card className="h-full">
-            <CardHeader>
-              <CardTitle>プロフィール</CardTitle>
-            </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center gap-3">
-                <Avatar className="h-12 w-12">
-                  <AvatarImage src={user.avatar || ""} />
-                  <AvatarFallback>
-                    {user.name?.slice(0, 2)?.toUpperCase() ?? "US"}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="font-semibold">{user.name}</p>
-                  <p className="text-sm text-muted-foreground">{user.email}</p>
-                </div>
-              </div>
-              <Button variant="outline" asChild className="w-full">
-                <Link to="/edit-settings" className="flex items-center gap-1">
-                  <Pencil className="h-4 w-4" />
-                </Link>
-              </Button>
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">統計</p>
-                <div className="flex gap-3">
-                  <div>
-                    <p className="text-base font-semibold">{files.length}</p>
-                    <p className="text-xs text-muted-foreground">投稿数</p>
-                  </div>
-                  <div>
-                    <p className="text-base font-semibold">0</p>
-                    <p className="text-xs text-muted-foreground">フォロー</p>
-                  </div>
-                  <div>
-                    <p className="text-base font-semibold">0</p>
-                    <p className="text-xs text-muted-foreground">フォロワー</p>
-                  </div>
-                </div>
-              </div>
-              <ScrollArea className="h-32 rounded-sm border bg-muted/30">
-                <div className="p-2 space-y-2">
-                  <p className="text-xs text-muted-foreground">
-                    ここにお知らせを表示できます。
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    運営からのお知らせや、最近アップロードしたファイルの処理状況など。
-                  </p>
-                </div>
-              </ScrollArea>
+              <UserSidebar user={user} filesCount={files.length} />
             </CardContent>
           </Card>
         </div>
       </main>
+      <Link to="/upload" className="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg transition z-50">
+        <Plus />
+      </Link>
     </div>
   );
 }
