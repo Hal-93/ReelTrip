@@ -1,12 +1,12 @@
-import LocationHeader from '../../components/map/map-header';
-import {CardDemo} from '../../components/map/mapheader';
+import {MapHeader } from '~/components/map/mapheader';
+import TaskBar from '~/components/taskbar/taskbar';
 
 export default function MapTestPage() {
   return (
     <div>
       {/* LocationHeader を表示 */}
-      <LocationHeader originText="現在地" destinationText="玉川屋" />
-      <CardDemo />
+      <MapHeader/>
+      <TaskBar/>
 
       {/* マップ本体やその他のコンテンツ */}
       <div style={{ padding: '20px' }}>
