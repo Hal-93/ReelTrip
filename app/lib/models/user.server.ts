@@ -11,6 +11,8 @@ export interface UpdateUserInput {
   id: string;
   email?: string;
   name?: string;
+  avatar?: string;
+  location?: string;
 }
 
 /**
@@ -50,12 +52,14 @@ export async function deleteUser(id: string) {
  * @param param
  * @returns
  */
-export async function updateUser({ id, email, name }: UpdateUserInput) {
+export async function updateUser({ id, email, name, avatar, location }: UpdateUserInput) {
   return prisma.user.update({
     where: { id },
     data: {
       ...(email !== undefined ? { email } : {}),
       ...(name !== undefined ? { name } : {}),
+      ...(avatar !== undefined ? { avatar } : {}),
+      ...(location !== undefined ? { location } : {}),
     },
   });
 }
@@ -80,5 +84,16 @@ export async function findOrCreateUser({
       name,
       avatar,
     },
+  });
+}
+
+/**
+ * ユーザーIDで取得
+ * @param id
+ * @returns
+ */
+export async function getUserById(id: string) {
+  return prisma.user.findUnique({
+    where: { id },
   });
 }
