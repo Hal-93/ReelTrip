@@ -183,7 +183,9 @@ export const Card = ({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [open]);
 
-  useOutsideClick(containerRef as React.RefObject<HTMLDivElement>, () => handleClose());
+  useOutsideClick(containerRef as React.RefObject<HTMLDivElement>, () =>
+    handleClose(),
+  );
 
   const handleOpen = () => {
     setOpen(true);
@@ -296,7 +298,7 @@ export const BlurImage = ({
       loading="lazy"
       decoding="async"
       alt={alt ? alt : "Background of a beautiful view"}
-      {...rest as Omit<typeof rest, "fill">}
+      {...(rest as Omit<typeof rest, "fill">)}
     />
   );
 };
