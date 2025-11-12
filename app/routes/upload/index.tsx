@@ -35,12 +35,12 @@ export default function Upload() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === "undefined") return;
 
     const file = e.target.files && e.target.files[0];
     if (!file) return;
 
-    if (file.name.toLowerCase().endsWith('.heic')) {
+    if (file.name.toLowerCase().endsWith(".heic")) {
       try {
         const arrayBuffer = await file.arrayBuffer();
 
@@ -53,12 +53,19 @@ export default function Upload() {
         console.log("EXIF data:", meta); // デバッグ用
 
         // ② HEIC -> JPEG変換
-        const { default: heic2any } = await import('heic2any');
-        const result = await heic2any({ blob: new Blob([arrayBuffer]), toType: 'image/jpeg' });
-        const convertedBlob = Array.isArray(result) ? result[0] : result;
-        const convertedFile = new File([convertedBlob], file.name.replace(/\.heic$/i, '.jpg'), {
-          type: 'image/jpeg',
+        const { default: heic2any } = await import("heic2any");
+        const result = await heic2any({
+          blob: new Blob([arrayBuffer]),
+          toType: "image/jpeg",
         });
+        const convertedBlob = Array.isArray(result) ? result[0] : result;
+        const convertedFile = new File(
+          [convertedBlob],
+          file.name.replace(/\.heic$/i, ".jpg"),
+          {
+            type: "image/jpeg",
+          },
+        );
         setSelectedFile(convertedFile);
 
         // ③ プレビュー作成
@@ -73,16 +80,19 @@ export default function Upload() {
         // --- ④ exifrから抽出したGPS情報をnormalizedに格納
         const normalized: Record<string, string | number> = {};
         if (meta?.latitude && meta?.longitude) {
-          normalized['GPSLatitude(dec)'] = meta.latitude;
-          normalized['GPSLongitude(dec)'] = meta.longitude;
-          normalized['GPS'] = `${meta.latitude}, ${meta.longitude}`;
+          normalized["GPSLatitude(dec)"] = meta.latitude;
+          normalized["GPSLongitude(dec)"] = meta.longitude;
+          normalized["GPS"] = `${meta.latitude}, ${meta.longitude}`;
         } else {
-          normalized['GPS'] = '情報なし';
+          normalized["GPS"] = "情報なし";
         }
 
-        if (meta?.Make) normalized['Make'] = meta.Make;
-        if (meta?.Model) normalized['Model'] = meta.Model;
-        if (meta?.DateTimeOriginal) normalized['撮影日時(DateTimeOriginal)'] = String(meta.DateTimeOriginal);
+        if (meta?.Make) normalized["Make"] = meta.Make;
+        if (meta?.Model) normalized["Model"] = meta.Model;
+        if (meta?.DateTimeOriginal)
+          normalized["撮影日時(DateTimeOriginal)"] = String(
+            meta.DateTimeOriginal,
+          );
 
         // --- 幅と高さの取得 ---
         if (!meta?.ExifImageWidth && !meta?.imageWidth) {
@@ -90,29 +100,31 @@ export default function Upload() {
           const blobUrl = URL.createObjectURL(convertedBlob);
           await new Promise((resolve) => {
             image.onload = () => {
-              normalized['Image Width'] = image.width;
-              normalized['Image Height'] = image.height;
+              normalized["Image Width"] = image.width;
+              normalized["Image Height"] = image.height;
               URL.revokeObjectURL(blobUrl);
               resolve(null);
             };
             image.src = blobUrl;
           });
         } else {
-          normalized['Image Width'] = meta.ExifImageWidth ?? meta.imageWidth ?? '情報なし';
-          normalized['Image Height'] = meta.ExifImageHeight ?? meta.imageHeight ?? '情報なし';
+          normalized["Image Width"] =
+            meta.ExifImageWidth ?? meta.imageWidth ?? "情報なし";
+          normalized["Image Height"] =
+            meta.ExifImageHeight ?? meta.imageHeight ?? "情報なし";
         }
 
         setExifInfo(normalized);
         setExifError(null);
       } catch (err) {
-        console.error('HEIC変換エラー:', err);
-        setMessage('HEIC画像の変換またはEXIF抽出に失敗しました。');
+        console.error("HEIC変換エラー:", err);
+        setMessage("HEIC画像の変換またはEXIF抽出に失敗しました。");
         setSelectedFile(null);
       }
       return;
     }
 
-    if (file.type.startsWith('image/')) {
+    if (file.type.startsWith("image/")) {
       setSelectedFile(file);
       setIsPreviewLoading(true);
       const reader = new FileReader();
@@ -126,44 +138,48 @@ export default function Upload() {
             exif: true,
             gps: true,
           });
-          console.log('EXIF data:', meta);
+          console.log("EXIF data:", meta);
 
           const normalized: Record<string, string | number> = {};
           if (meta?.latitude && meta?.longitude) {
-            normalized['GPSLatitude(dec)'] = meta.latitude;
-            normalized['GPSLongitude(dec)'] = meta.longitude;
-            normalized['GPS'] = `${meta.latitude}, ${meta.longitude}`;
+            normalized["GPSLatitude(dec)"] = meta.latitude;
+            normalized["GPSLongitude(dec)"] = meta.longitude;
+            normalized["GPS"] = `${meta.latitude}, ${meta.longitude}`;
           } else {
-            normalized['GPS'] = '情報なし';
+            normalized["GPS"] = "情報なし";
           }
 
-          normalized['Make'] = meta?.Make ?? '情報なし';
-          normalized['Model'] = meta?.Model ?? '情報なし';
-          normalized['撮影日時(DateTimeOriginal)'] = meta?.DateTimeOriginal ? String(meta.DateTimeOriginal) : '情報なし';
+          normalized["Make"] = meta?.Make ?? "情報なし";
+          normalized["Model"] = meta?.Model ?? "情報なし";
+          normalized["撮影日時(DateTimeOriginal)"] = meta?.DateTimeOriginal
+            ? String(meta.DateTimeOriginal)
+            : "情報なし";
 
           if (!meta?.ExifImageWidth && !meta?.imageWidth) {
             const image = new Image();
             const blobUrl = URL.createObjectURL(file);
             await new Promise((resolve) => {
               image.onload = () => {
-                normalized['Image Width'] = image.width;
-                normalized['Image Height'] = image.height;
+                normalized["Image Width"] = image.width;
+                normalized["Image Height"] = image.height;
                 URL.revokeObjectURL(blobUrl);
                 resolve(null);
               };
               image.src = blobUrl;
             });
           } else {
-            normalized['Image Width'] = meta.ExifImageWidth ?? meta.imageWidth ?? '情報なし';
-            normalized['Image Height'] = meta.ExifImageHeight ?? meta.imageHeight ?? '情報なし';
+            normalized["Image Width"] =
+              meta.ExifImageWidth ?? meta.imageWidth ?? "情報なし";
+            normalized["Image Height"] =
+              meta.ExifImageHeight ?? meta.imageHeight ?? "情報なし";
           }
 
           setExifInfo(normalized);
           setExifError(null);
         } catch (err) {
-          console.error('EXIF抽出エラー:', err);
+          console.error("EXIF抽出エラー:", err);
           setExifInfo(null);
-          setExifError('EXIF情報の抽出に失敗しました。');
+          setExifError("EXIF情報の抽出に失敗しました。");
         }
       };
       reader.readAsDataURL(file);
@@ -172,7 +188,7 @@ export default function Upload() {
       setPreviewUrl(null);
     }
   };
-  
+
   type ExifrMeta = Partial<{
     latitude: number;
     longitude: number;
@@ -240,8 +256,12 @@ export default function Upload() {
       }
     };
 
-    normalized["撮影日時(DateTimeOriginal)"] = formatDate(meta.DateTimeOriginal);
-    normalized["デジタル化日時(DateTimeDigitized)"] = formatDate(meta.CreateDate);
+    normalized["撮影日時(DateTimeOriginal)"] = formatDate(
+      meta.DateTimeOriginal,
+    );
+    normalized["デジタル化日時(DateTimeDigitized)"] = formatDate(
+      meta.CreateDate,
+    );
     normalized["更新日時(DateTime)"] = formatDate(meta.ModifyDate);
 
     // --- その他 ---
@@ -250,16 +270,18 @@ export default function Upload() {
       const blobUrl = URL.createObjectURL(file);
       await new Promise((resolve) => {
         image.onload = () => {
-          normalized['Image Width'] = image.width;
-          normalized['Image Height'] = image.height;
+          normalized["Image Width"] = image.width;
+          normalized["Image Height"] = image.height;
           URL.revokeObjectURL(blobUrl);
           resolve(null);
         };
         image.src = blobUrl;
       });
     } else {
-      normalized['Image Width'] = meta.ExifImageWidth ?? meta.imageWidth ?? "情報なし";
-      normalized['Image Height'] = meta.ExifImageHeight ?? meta.imageHeight ?? "情報なし";
+      normalized["Image Width"] =
+        meta.ExifImageWidth ?? meta.imageWidth ?? "情報なし";
+      normalized["Image Height"] =
+        meta.ExifImageHeight ?? meta.imageHeight ?? "情報なし";
     }
     normalized["Make"] = meta.Make ?? "情報なし";
     normalized["Model"] = meta.Model ?? "情報なし";
@@ -371,18 +393,22 @@ export default function Upload() {
         {isPreviewLoading ? (
           <div className="flex justify-center items-center py-6">
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900"></div>
-            <span className="ml-2 text-gray-700 text-sm">プレビューを生成中...</span>
+            <span className="ml-2 text-gray-700 text-sm">
+              プレビューを生成中...
+            </span>
           </div>
-        ) : previewUrl && (
-          <div className="mb-6 flex justify-center rounded-sm border border-gray-300 overflow-hidden max-w-xs max-h-72">
-            <img
-              src={previewUrl}
-              alt="Preview"
-              width={300}
-              height={300}
-              className="object-contain"
-            />
-          </div>
+        ) : (
+          previewUrl && (
+            <div className="mb-6 flex justify-center rounded-sm border border-gray-300 overflow-hidden max-w-xs max-h-72">
+              <img
+                src={previewUrl}
+                alt="Preview"
+                width={300}
+                height={300}
+                className="object-contain"
+              />
+            </div>
+          )
         )}
         {message && (
           <p className="mb-4 text-center text-sm font-medium text-gray-700">
@@ -401,9 +427,9 @@ export default function Upload() {
             <button
               type="submit"
               disabled={isUploading}
-              className={`w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-sm transition-colors duration-200 ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-sm transition-colors duration-200 ${isUploading ? "opacity-50 cursor-not-allowed" : ""}`}
             >
-              {isUploading ? 'アップロード中...' : 'アップロード'}
+              {isUploading ? "アップロード中..." : "アップロード"}
             </button>
           </>
         ) : (
