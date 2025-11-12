@@ -36,7 +36,7 @@ export async function action({ request }: ActionFunctionArgs) {
       "Set-Cookie",
       `token=${idToken}; HttpOnly; Path=/; Max-Age=3600; ${
         process.env.NODE_ENV === "production" ? "Secure; SameSite=Lax" : ""
-      }`
+      }`,
     );
 
     return redirect("/home", { headers });

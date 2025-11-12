@@ -157,7 +157,9 @@ export async function getPublicObject(sourceObject: string): Promise<Buffer> {
       });
 
       dataStream.on("end", () => {
-        console.log(`File ${sourceObject} retrieved from bucket ${publicBucket}`);
+        console.log(
+          `File ${sourceObject} retrieved from bucket ${publicBucket}`,
+        );
         resolve(Buffer.concat(chunks));
       });
 

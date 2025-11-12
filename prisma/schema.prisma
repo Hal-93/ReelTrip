@@ -7,13 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Season {
-  SPIRING
-  SUMMER
-  AUTUMN
-  WINTER
-}
-
 enum AccountType {
   ADMIN
   OFFICIAL
@@ -21,25 +14,39 @@ enum AccountType {
 }
 
 model User {
-  id          String   @id @default(cuid())
-  firebaseUid String   @unique
-  email       String   @unique
+  id          String      @id @default(cuid())
+  firebaseUid String      @unique
+  email       String      @unique
   type        AccountType @default(GENERAL)
   name        String?
   avatar      String?
+  location    String      @default("")
+
   files       File[]
-  createdAt   DateTime @default(now())
+  pictures    Picture[]
+
+  followers   Follows[]   @relation("followers")
+  following   Follows[]   @relation("following")
+
+  createdAt   DateTime    @default(now())
 }
 
 model Picture {
-  id          String   @id @default(cuid())
-  createdAt   DateTime
-  lat         Float
-  lng         Float
-  location    String
-  season      Season
-  price       Int
-  userId      String  
+  id        String   @id @default(cuid())
+  createdAt DateTime
+
+  width    Int
+  height   Int
+  lat      Float
+  lng      Float
+  date     String
+
+  price Int?
+
+  fileId String
+  file   File   @relation(fields: [fileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model File {
@@ -48,9 +55,23 @@ model File {
   objectName   String @unique
   downloadLink String
 
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  userId       String
-  user         User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId   String
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  pictures Picture[]
+}
+
+model Follows {
+  id          String   @id @default(cuid())
+  followerId  String
+  followingId String
+
+  follower    User     @relation("following", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("followers", fields: [followingId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
+
+  @@unique([followerId, followingId])
 }
