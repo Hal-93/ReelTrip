@@ -45,7 +45,10 @@ export async function action({ request }: ActionFunctionArgs) {
       });
     } catch (error) {
       console.error(error);
-      return Response.json({ message: "画像登録に失敗しました。" }, { status: 500 });
+      return Response.json(
+        { message: "画像登録に失敗しました。" },
+        { status: 500 },
+      );
     }
 
     return Response.json({ file: result, picture: pictureResult });

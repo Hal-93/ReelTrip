@@ -52,7 +52,13 @@ export async function deleteUser(id: string) {
  * @param param
  * @returns
  */
-export async function updateUser({ id, email, name, avatar, location }: UpdateUserInput) {
+export async function updateUser({
+  id,
+  email,
+  name,
+  avatar,
+  location,
+}: UpdateUserInput) {
   return prisma.user.update({
     where: { id },
     data: {
