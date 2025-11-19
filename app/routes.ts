@@ -9,7 +9,6 @@ export default [
   { path: "reels", file: "routes/reels/index.tsx" },
   { path: "preferences", file: "routes/preferences/index.tsx" },
   { path: "settings", file: "routes/settings/index.tsx" },
-  { path: "reels-loading", file: "routes/reels-loading/index.tsx" },
   { path: "user-settings", file: "routes/user-settings/index.tsx" },
   { path: "post", file: "routes/post/index.tsx" },
   { path: "map", file: "routes/map/index.tsx" },
@@ -17,6 +16,7 @@ export default [
   { path: "upload", file: "routes/upload/index.tsx" },
   { path: "popup", file: "routes/popup/index.tsx" },
   { path: "use-points", file: "routes/use-points/index.tsx" },
+  { path: "reels/preview", file: "routes/preview/index.tsx" },
 
   //API関連
   { path: "api/auth/session", file: "routes/api/auth/session/route.ts" },

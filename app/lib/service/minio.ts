@@ -174,3 +174,26 @@ export async function getPublicObject(sourceObject: string): Promise<Buffer> {
     throw err;
   }
 }
+
+export async function getRootObjects(): Promise<string[]> {
+  try {
+    const exists = await minioClient.bucketExists(bucket);
+    if (!exists) {
+      throw new Error(`Bucket "${bucket}" does not exist.`);
+    }
+
+    const objects = minioClient.listObjectsV2(bucket, "", false);
+
+    const files: string[] = [];
+    for await (const obj of objects) {
+      if (obj.name && !obj.name.includes("/")) {
+        files.push(obj.name);
+      }
+    }
+
+    return files;
+  } catch (err) {
+    console.error("Error getting root objects:", err);
+    throw err;
+  }
+}
