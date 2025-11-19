@@ -1,23 +1,25 @@
-import React, { useState } from 'react';
-import TaskBarItem from './taskbar-item';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { 
-  faHouse,   
-  faHeart,  
-  faCamera, 
-  faUser    
-} from '@fortawesome/free-solid-svg-icons';
-
+import React, { useState } from "react";
+import TaskBarItem from "./taskbar-item";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faHouse,
+  faHeart,
+  faCamera,
+  faUser,
+} from "@fortawesome/free-solid-svg-icons";
 
 const TaskBar: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('home'); 
+  const [activeTab, setActiveTab] = useState("home");
 
-  
   const items = [
-    { id: 'home', label: 'ホーム', icon: <FontAwesomeIcon icon={faHouse} /> },      
-    { id: 'like', label: 'いいね', icon: <FontAwesomeIcon icon={faHeart} /> },     
-    { id: 'post', label: '投稿', icon: <FontAwesomeIcon icon={faCamera} /> },    
-    { id: 'mypage', label: 'マイページ', icon: <FontAwesomeIcon icon={faUser} /> },   
+    { id: "home", label: "ホーム", icon: <FontAwesomeIcon icon={faHouse} /> },
+    { id: "like", label: "いいね", icon: <FontAwesomeIcon icon={faHeart} /> },
+    { id: "post", label: "投稿", icon: <FontAwesomeIcon icon={faCamera} /> },
+    {
+      id: "mypage",
+      label: "マイページ",
+      icon: <FontAwesomeIcon icon={faUser} />,
+    },
   ];
 
   return (

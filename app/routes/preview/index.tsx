@@ -8,7 +8,6 @@ export default function ReelsPreviewPage() {
 
   return (
     <div className="relative w-full h-screen bg-black text-white overflow-hidden">
-
       {videoUrl ? (
         <video
           key={videoUrl}
@@ -45,7 +44,8 @@ export default function ReelsPreviewPage() {
       <div className="absolute bottom-24 left-4 max-w-[70%]">
         <p className="font-bold text-lg">@あなた</p>
         <p className="text-sm text-gray-200 mt-1">
-          ReelTrip が自動生成したリール動画です。<br />
+          ReelTrip が自動生成したリール動画です。
+          <br />
           気に入ったら投稿してみよう！
         </p>
       </div>
@@ -67,7 +67,6 @@ export default function ReelsPreviewPage() {
           このリールで投稿
         </Button>
       </div>
-
     </div>
   );
 }
