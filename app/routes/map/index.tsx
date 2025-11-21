@@ -1,6 +1,7 @@
 import { useLoaderData } from "react-router";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react"; 
 import "mapbox-gl/dist/mapbox-gl.css";
+import mapboxgl from 'mapbox-gl'; 
 
 import { DrawerDemo } from "~/components/map/mapfooter";
 import { MapHeader } from "~/components/map/mapheader";
@@ -20,11 +21,15 @@ export default function MapPage() {
   const { token } = useLoaderData<typeof loader>();
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
 
+  const [pinLocation, setPinLocation] = useState<[number, number] | null>(null);
+
+  const mapRef = useRef<mapboxgl.Map | null>(null); 
+  const markerRef = useRef<mapboxgl.Marker | null>(null); 
+  
   useEffect(() => {
     if (!mapContainerRef.current) return;
-    if (!token) return;
+    if (!token || mapRef.current) return; 
 
-    let map: mapboxgl.Map | null = null;
     let cancelled = false;
 
     (async () => {
@@ -33,21 +38,49 @@ export default function MapPage() {
 
       if (cancelled) return;
 
-      map = new mapboxgl.Map({
+      mapRef.current = new mapboxgl.Map({
         container: mapContainerRef.current!,
         style: "mapbox://styles/so03jp/cmacq6ily00l501rf5j67an3w",
-        center: [139.767, 35.681],
+        center: [139.767, 35.681], 
         zoom: 11,
       });
 
-      map.addControl(new mapboxgl.NavigationControl(), "top-right");
+      mapRef.current.addControl(new mapboxgl.NavigationControl(), "top-right");
+
+      mapRef.current.on('click', (e) => {
+        const newLocation: [number, number] = [e.lngLat.lng, e.lngLat.lat];
+        setPinLocation(newLocation);
+      });
+      
     })();
 
     return () => {
       cancelled = true;
-      if (map) map.remove();
+      if (markerRef.current) markerRef.current.remove();
+      if (mapRef.current) mapRef.current.remove();
     };
   }, [token]);
+
+  useEffect(() => {
+    if (!mapRef.current) return;
+
+    if (pinLocation) {
+      if (markerRef.current) {
+        markerRef.current.setLngLat(pinLocation);
+      } else {
+        markerRef.current = new mapboxgl.Marker()
+          .setLngLat(pinLocation)
+          .addTo(mapRef.current);
+      }
+      
+      mapRef.current.flyTo({ center: pinLocation, zoom: 15, duration: 800 });
+      
+    } else if (markerRef.current) {
+      markerRef.current.remove();
+      markerRef.current = null;
+    }
+  }, [pinLocation]); 
+
 
   return (
     <div style={{ height: "100vh", display: "flex", flexDirection: "column" }}>
