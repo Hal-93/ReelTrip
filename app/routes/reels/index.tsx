@@ -1,5 +1,5 @@
 export async function loader() {
-  const res = await fetch("http://localhost:8000/list-objects");
+  const res = await fetch("http://127.0.0.1:8000/list-objects");
   const files = await res.json();
   return { files };
 }
@@ -27,7 +27,7 @@ export default function ReelsPage() {
           const shuffled = [...files].sort(() => Math.random() - 0.5);
           const selected = shuffled.slice(0, 3);
 
-          const res = await fetch("http://localhost:8000/make-video", {
+          const res = await fetch("http://127.0.0.1:8000/make-video", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ keys: selected }),
