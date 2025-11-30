@@ -24,7 +24,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export default function Home() {
   const { user, files } = useLoaderData<typeof loader>();
-  const [selectedImage, setSelectedImage] = useState<typeof files[0] | null>(null);
+  const [selectedImage, setSelectedImage] = useState<(typeof files)[0] | null>(
+    null,
+  );
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -58,9 +60,13 @@ export default function Home() {
             <CardContent>
               <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-4 gap-[1px] bg-white">
                 {files.map((file) => (
-                  <Dialog key={file.id} open={selectedImage?.id === file.id} onOpenChange={(open) => {
-                    if (!open) setSelectedImage(null);
-                  }}>
+                  <Dialog
+                    key={file.id}
+                    open={selectedImage?.id === file.id}
+                    onOpenChange={(open) => {
+                      if (!open) setSelectedImage(null);
+                    }}
+                  >
                     <DialogTrigger asChild>
                       <div
                         className="aspect-square overflow-hidden cursor-pointer"
@@ -83,7 +89,13 @@ export default function Home() {
                           />
                           <div className="w-full px-2">
                             <p className="text-sm text-muted-foreground">
-                              投稿日: {selectedImage.createdAt ? new Date(selectedImage.createdAt).toLocaleString() : "---"} -by @{selectedImage.userId}
+                              投稿日:{" "}
+                              {selectedImage.createdAt
+                                ? new Date(
+                                    selectedImage.createdAt,
+                                  ).toLocaleString()
+                                : "---"}{" "}
+                              -by @{selectedImage.userId}
                             </p>
                           </div>
                         </div>
@@ -108,7 +120,10 @@ export default function Home() {
           </Card>
         </div>
       </main>
-      <Link to="/upload" className="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg transition z-50">
+      <Link
+        to="/upload"
+        className="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg transition z-50"
+      >
         <Plus />
       </Link>
     </div>

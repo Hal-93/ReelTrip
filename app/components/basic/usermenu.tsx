@@ -6,13 +6,23 @@ import { ScrollArea } from "~/components/ui/scroll-area";
 import { CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import type { User } from "@prisma/client";
 
-export function UserSidebar({ user, filesCount, followingCount = 0, followerCount = 0 }: { user: User; filesCount: number; followingCount?: number; followerCount?: number }) {
+export function UserSidebar({
+  user,
+  filesCount,
+  followingCount = 0,
+  followerCount = 0,
+}: {
+  user: User;
+  filesCount: number;
+  followingCount?: number;
+  followerCount?: number;
+}) {
   return (
     <aside className="w-72">
       <div className="flex flex-col items-center space-y-4">
         <Avatar className="w-24 h-24">
           {user.avatar ? (
-            <AvatarImage src={user.avatar}/>
+            <AvatarImage src={user.avatar} />
           ) : (
             <AvatarFallback>{user.name?.[0]}</AvatarFallback>
           )}
@@ -22,7 +32,10 @@ export function UserSidebar({ user, filesCount, followingCount = 0, followerCoun
           <p className="text-sm text-gray-500">@{user.id}</p>
         </div>
         <Link to="/settings" className="w-full">
-          <Button variant="outline" className="w-full flex items-center justify-center space-x-2">
+          <Button
+            variant="outline"
+            className="w-full flex items-center justify-center space-x-2"
+          >
             <Pencil size={16} />
             <span>編集</span>
           </Button>
@@ -47,7 +60,7 @@ export function UserSidebar({ user, filesCount, followingCount = 0, followerCoun
           <CardTitle>通知</CardTitle>
         </CardHeader>
         <CardContent>
-        <p className="text-sm text-gray-600">通知はここに表示されます。</p>
+          <p className="text-sm text-gray-600">通知はここに表示されます。</p>
         </CardContent>
       </ScrollArea>
     </aside>

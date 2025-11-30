@@ -4,7 +4,6 @@ import { getUser } from "~/lib/models/auth.server";
 import { getUserById, updateUser } from "~/lib/models/user.server";
 import { Form, useLoaderData } from "react-router";
 
-
 export async function loader({ request }: { request: Request }) {
   const user = await getUser(request);
   if (!user) throw redirect("/login");
@@ -63,9 +62,7 @@ export default function ReUserSettingsPage() {
       <div className="flex flex-col w-full max-w-md bg-black/30 p-4 rounded-lg gap-4">
         <div className="flex justify-center items-center gap-2">
           <span className="text-gray-300 text-sm">ユーザーID</span>
-          <p className="text-lg font-semibold text-center flex-1">
-            {user.id}
-          </p>
+          <p className="text-lg font-semibold text-center flex-1">{user.id}</p>
         </div>
 
         <div className="flex justify-center gap-6 mt-2">

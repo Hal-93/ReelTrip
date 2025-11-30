@@ -18,8 +18,6 @@ export default [
   { path: "popup", file: "routes/popup/index.tsx" },
   { path: "use-points", file: "routes/use-points/index.tsx" },
 
-
-
   //API関連
   { path: "api/auth/session", file: "routes/api/auth/session/route.ts" },
   { path: "api/auth/logout", file: "routes/api/auth/logout/route.ts" },
