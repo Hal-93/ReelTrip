@@ -13,7 +13,7 @@ type MarkerWithPopupProps = {
   title: string;
   image: string;
   
-  onMarkerClick: (coordinates: [number, number], title: string) => void; 
+  onMarkerClick: (coordinates: [number, number], title: string, image: string) => void; 
 };
 
 export function MarkerWithPopup({ map, coordinates, title, image, onMarkerClick }: MarkerWithPopupProps) {
@@ -50,7 +50,7 @@ export function MarkerWithPopup({ map, coordinates, title, image, onMarkerClick 
     
     const handleClick = () => {
       map.flyTo({ center: coordinates, zoom: 16, duration: 800 });
-      onMarkerClick(coordinates, title); 
+      onMarkerClick(coordinates, title, image); 
     };
     
     marker.getElement().addEventListener("click", handleClick);
@@ -105,6 +105,7 @@ export default function MapPage() {
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [currentPlace, setCurrentPlace] = useState<string | null>(null);
   const [destinationPlace, setDestinationPlace] = useState<string | null>(null);
+  const [destinationImage, setDestinationImage] = useState<string | null>(null);
   const [distance, setDistance] = useState<string | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   // -------------------------
@@ -143,10 +144,11 @@ export default function MapPage() {
   };
 
   
-  const handleMarkerClick = (coordinates: [number, number], title: string) => {
+  const handleMarkerClick = (coordinates: [number, number], title: string, image: string) => {
     if (userLocation) {
         setPinLocation(coordinates); 
         setDestinationPlace(title); 
+        setDestinationImage(image);
         setIsDrawerOpen(true); 
     } else {
         alert("現在地が取得できていません。");
@@ -253,6 +255,8 @@ export default function MapPage() {
           place={destinationPlace} 
           open={isDrawerOpen}
           onOpenChange={setIsDrawerOpen}
+          spotTitle={destinationPlace}
+          spotImage={destinationImage}
         />
       )}
     </div>

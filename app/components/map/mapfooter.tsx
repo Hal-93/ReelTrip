@@ -8,7 +8,7 @@ import {
   DrawerTrigger,
 } from "~/components/ui/drawer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import { CarFront, TramFront, Footprints, X } from "lucide-react"; // 📌 Xアイコンを追加
+import { CarFront, TramFront, Footprints, X, MapPin} from "lucide-react"; // 📌 Xアイコンを追加
 
 
 interface DrawerDemoProps {
@@ -16,10 +16,13 @@ interface DrawerDemoProps {
   place?: string | null;
   open: boolean; 
   onOpenChange: (open: boolean) => void; 
+
+  spotTitle?: string | null;
+  spotImage?: string | null;
 }
 
 
-export function DrawerDemo({ distance, place, open, onOpenChange }: DrawerDemoProps) {
+export function DrawerDemo({ distance, place, open, onOpenChange, spotTitle, spotImage }: DrawerDemoProps) {
   const displayDist = distance || "--- km";
   const displayPlace = place || "お店のpin(仮)";
 
@@ -53,6 +56,9 @@ export function DrawerDemo({ distance, place, open, onOpenChange }: DrawerDemoPr
             <TabsTrigger value="walk" className="text-2xl font-medium flex items-center space-x-2 px-4 py-2 text-white data-[state=active]:text-cyan-400 data-[state=active]:bg-transparent data-[state=active]:shadow-none">
               <Footprints style={{ width: 32, height: 32 }} /> walk
             </TabsTrigger>
+            <TabsTrigger value="spot" className="text-2xl font-medium flex items-center space-x-2 px-4 py-2 text-white data-[state=active]:text-cyan-400 data-[state=active]:bg-transparent data-[state=active]:shadow-none">
+              <MapPin style={{ width: 32, height: 32 }} /> Spot
+            </TabsTrigger>
           </TabsList>
           
           <div className="flex-1 border-b border-white"></div>
@@ -61,6 +67,12 @@ export function DrawerDemo({ distance, place, open, onOpenChange }: DrawerDemoPr
           <ContentTab value="train" distance={displayDist} />
           <ContentTab value="walk" distance={displayDist} />
 
+          {/* Spot 用タブ */}
+          <SpotTab 
+            value="spot" 
+            title={spotTitle ?? ""} 
+            image={spotImage ?? ""} 
+          />
         </Tabs>
       </DrawerContent>
     </Drawer>
@@ -86,6 +98,22 @@ function ContentTab({ value, distance }: { value: string, distance: string }) {
           </div>
         </div>
       </DrawerDescription>
+    </TabsContent>
+  );
+}
+
+function SpotTab({ value, title, image }: { value: string, title: string, image: string }) {
+  return (
+    <TabsContent value={value}>
+      <div className="p-4 pb-0 m-10 text-center">
+        <img 
+          src={image}
+          alt={title}
+          className="w-full max-w-[300px] mx-auto rounded-xl shadow-lg"
+        />
+        <div className="text-3xl font-bold text-white mb-4">{title}</div>
+
+      </div>
     </TabsContent>
   );
 }
