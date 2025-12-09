@@ -6,17 +6,26 @@ import mapboxgl from "mapbox-gl";
 import { DrawerDemo } from "~/components/map/mapfooter";
 import { MapHeader } from "~/components/map/mapheader";
 
-
 type MarkerWithPopupProps = {
   map: mapboxgl.Map | null;
   coordinates: [number, number];
   title: string;
   image: string;
-  
-  onMarkerClick: (coordinates: [number, number], title: string, image: string) => void; 
+
+  onMarkerClick: (
+    coordinates: [number, number],
+    title: string,
+    image: string,
+  ) => void;
 };
 
-export function MarkerWithPopup({ map, coordinates, title, image, onMarkerClick }: MarkerWithPopupProps) {
+export function MarkerWithPopup({
+  map,
+  coordinates,
+  title,
+  image,
+  onMarkerClick,
+}: MarkerWithPopupProps) {
   useEffect(() => {
     if (!map) return;
 
@@ -47,15 +56,13 @@ export function MarkerWithPopup({ map, coordinates, title, image, onMarkerClick 
       .setLngLat(coordinates)
       .addTo(map);
 
-    
     const handleClick = () => {
       map.flyTo({ center: coordinates, zoom: 16, duration: 800 });
-      onMarkerClick(coordinates, title, image); 
+      onMarkerClick(coordinates, title, image);
     };
-    
+
     marker.getElement().addEventListener("click", handleClick);
 
-    
     const handleZoom = () => {
       const zoom = map.getZoom();
       const scale = Math.min(1, 0.7 + (zoom - 14) * 0.05);
@@ -76,7 +83,6 @@ export function MarkerWithPopup({ map, coordinates, title, image, onMarkerClick 
 
   return null;
 }
-
 
 export const links = () => [
   {
@@ -100,9 +106,10 @@ export default function MapPage() {
   const { token } = useLoaderData<typeof loader>();
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
 
-  
   const [pinLocation, setPinLocation] = useState<[number, number] | null>(null);
-  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+  const [userLocation, setUserLocation] = useState<[number, number] | null>(
+    null,
+  );
   const [currentPlace, setCurrentPlace] = useState<string | null>(null);
   const [destinationPlace, setDestinationPlace] = useState<string | null>(null);
   const [destinationImage, setDestinationImage] = useState<string | null>(null);
@@ -113,7 +120,6 @@ export default function MapPage() {
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const userMarkerRef = useRef<mapboxgl.Marker | null>(null);
 
-  
   const samplePlaces: MapPlace[] = [
     {
       id: 1,
@@ -121,11 +127,12 @@ export default function MapPage() {
       coordinates: [139.720204, 35.783899],
       image: "https://picsum.photos/400/300",
     },
-    
   ];
 
-  
-  const fetchDistance = async (start: [number, number], end: [number, number]) => {
+  const fetchDistance = async (
+    start: [number, number],
+    end: [number, number],
+  ) => {
     if (!token) return;
 
     const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${start[0]},${start[1]};${end[0]},${end[1]}?access_token=${token}`;
@@ -143,19 +150,21 @@ export default function MapPage() {
     }
   };
 
-  
-  const handleMarkerClick = (coordinates: [number, number], title: string, image: string) => {
+  const handleMarkerClick = (
+    coordinates: [number, number],
+    title: string,
+    image: string,
+  ) => {
     if (userLocation) {
-        setPinLocation(coordinates); 
-        setDestinationPlace(title); 
-        setDestinationImage(image);
-        setIsDrawerOpen(true); 
+      setPinLocation(coordinates);
+      setDestinationPlace(title);
+      setDestinationImage(image);
+      setIsDrawerOpen(true);
     } else {
-        alert("現在地が取得できていません。");
+      alert("現在地が取得できていません。");
     }
   };
 
-  
   useEffect(() => {
     if (!mapContainerRef.current || !token || mapRef.current) return;
 
@@ -169,7 +178,6 @@ export default function MapPage() {
 
     mapRef.current.addControl(new mapboxgl.NavigationControl(), "top-right");
 
-    
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
@@ -178,10 +186,12 @@ export default function MapPage() {
 
           try {
             const res = await fetch(
-              `https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${token}`
+              `https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${token}`,
             );
             const data = await res.json();
-            setCurrentPlace(data.features?.[0]?.place_name ?? "住所取得できません");
+            setCurrentPlace(
+              data.features?.[0]?.place_name ?? "住所取得できません",
+            );
           } catch (error) {
             console.error("現在地住所取得失敗:", error);
             setCurrentPlace("住所取得できません");
@@ -190,11 +200,9 @@ export default function MapPage() {
           mapRef.current?.flyTo({ center: [longitude, latitude], zoom: 14 });
         },
         (error) => console.error("現在地取得失敗:", error),
-        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 },
       );
     }
-    
-    
 
     return () => {
       if (userMarkerRef.current) userMarkerRef.current.remove();
@@ -202,18 +210,14 @@ export default function MapPage() {
     };
   }, [token]);
 
-
-  
   useEffect(() => {
     if (userLocation && pinLocation) {
       fetchDistance(userLocation, pinLocation);
     } else {
       setDistance(null);
-       
     }
   }, [userLocation, pinLocation]);
 
-  
   useEffect(() => {
     if (!mapRef.current || !userLocation) return;
 
@@ -232,8 +236,11 @@ export default function MapPage() {
     <div style={{ height: "100vh", display: "flex", flexDirection: "column" }}>
       <div style={{ position: "relative", height: "100%", width: "100%" }}>
         <div ref={mapContainerRef} style={{ height: "100%", width: "100%" }} />
-        
-        <MapHeader currentPlace={currentPlace ?? undefined} destinationPlace={destinationPlace ?? undefined} /> 
+
+        <MapHeader
+          currentPlace={currentPlace ?? undefined}
+          destinationPlace={destinationPlace ?? undefined}
+        />
 
         {mapRef.current &&
           samplePlaces.map((place) => (
@@ -243,16 +250,15 @@ export default function MapPage() {
               coordinates={place.coordinates}
               title={place.title}
               image={place.image}
-              
-              onMarkerClick={handleMarkerClick} 
+              onMarkerClick={handleMarkerClick}
             />
           ))}
       </div>
 
       {pinLocation && (
-        <DrawerDemo 
-          distance={distance} 
-          place={destinationPlace} 
+        <DrawerDemo
+          distance={distance}
+          place={destinationPlace}
           open={isDrawerOpen}
           onOpenChange={setIsDrawerOpen}
           spotTitle={destinationPlace}
