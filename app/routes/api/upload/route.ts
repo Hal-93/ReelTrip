@@ -30,7 +30,7 @@ export async function action({ request }: ActionFunctionArgs) {
     if (quality === "false") {
       return Response.json(
         { message: "AI判定によりアップロードできません。" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 

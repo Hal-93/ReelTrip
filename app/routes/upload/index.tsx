@@ -338,7 +338,8 @@ export default function Upload() {
       }
 
       if (info && result) {
-        (info as Record<string, string | number>)["AI Result"] = typeof result === "string" ? result : String(result);
+        (info as Record<string, string | number>)["AI Result"] =
+          typeof result === "string" ? result : String(result);
       }
     } catch (e) {
       console.error("AI解析エラー", e);
@@ -480,7 +481,9 @@ export default function Upload() {
               onClick={handleAnalyze}
               disabled={isAnalyzeDisabled}
               className={`w-full mb-3 bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold py-2 px-4 rounded-md transition-colors duration-200 ${
-                isAnalyzeDisabled ? "opacity-50 cursor-not-allowed hover:bg-gray-100" : ""
+                isAnalyzeDisabled
+                  ? "opacity-50 cursor-not-allowed hover:bg-gray-100"
+                  : ""
               }`}
             >
               画像を確認
@@ -489,7 +492,9 @@ export default function Upload() {
         ) : (
           <div className="flex justify-center items-center py-4">
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900"></div>
-            <span className="ml-2 text-gray-700 text-sm">画像を確認しています</span>
+            <span className="ml-2 text-gray-700 text-sm">
+              画像を確認しています
+            </span>
           </div>
         )}
       </form>
@@ -529,31 +534,33 @@ export default function Upload() {
             </select>
             <p>※AIが判断した結果が表示されています。修正が可能です。</p>
           </div>
-          {isQualityBad ?
-          <>
-            この画像は品質基準を満たしていないため投稿できません。
-            <br/>
-            詳しくは投稿ガイドをご確認ください。
-          </>:
-          <>
-            この画像はアップロードできます
-            <br/>
-          </>
-          
-          }
+          {isQualityBad ? (
+            <>
+              この画像は品質基準を満たしていないため投稿できません。
+              <br />
+              詳しくは投稿ガイドをご確認ください。
+            </>
+          ) : (
+            <>
+              この画像はアップロードできます
+              <br />
+            </>
+          )}
           <button
             type="button"
             onClick={handleSubmit}
             disabled={isUploading || isQualityBad}
             className={`w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-sm transition-colors duration-200 ${
-              isUploading || isQualityBad ? "opacity-50 cursor-not-allowed hover:bg-blue-600" : ""
+              isUploading || isQualityBad
+                ? "opacity-50 cursor-not-allowed hover:bg-blue-600"
+                : ""
             }`}
           >
             {isQualityBad
               ? "アップロード不可"
               : isUploading
-              ? "アップロード中..."
-              : "アップロード"}
+                ? "アップロード中..."
+                : "アップロード"}
           </button>
         </DialogContent>
       </Dialog>

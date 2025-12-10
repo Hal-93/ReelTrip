@@ -19,28 +19,28 @@ export const action: ActionFunction = async ({ request }) => {
     });
 
     const messages = [
-    {
+      {
         role: "system",
         content: [
-        {
+          {
             type: "text",
-            text: "genre と quality を JSON 形式で返せ"
-        }
-        ]
-    },
-    {
+            text: "genre と quality を JSON 形式で返せ",
+          },
+        ],
+      },
+      {
         role: "user",
         content: [
-        {
+          {
             type: "text",
-            text: "写真内容から genre(G/A/S/N) と quality(true/false) を分類し、JSON で返せ。"
-        },
-        {
+            text: "写真内容から genre(G/A/S/N) と quality(true/false) を分類し、JSON で返せ。",
+          },
+          {
             type: "image_url",
-            image_url: { url: `data:image/png;base64,${base64}` }
-        }
-        ]
-    }
+            image_url: { url: `data:image/png;base64,${base64}` },
+          },
+        ],
+      },
     ] satisfies OpenAI.ChatCompletionMessageParam[];
 
     const resp = await oai.chat.completions.create({
