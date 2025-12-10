@@ -17,6 +17,8 @@ export default [
   { path: "upload", file: "routes/upload/index.tsx" },
   { path: "popup", file: "routes/popup/index.tsx" },
   { path: "use-points", file: "routes/use-points/index.tsx" },
+  { path: "guide", file: "routes/guide/index.tsx" },
+
 
   //API関連
   { path: "api/auth/session", file: "routes/api/auth/session/route.ts" },
