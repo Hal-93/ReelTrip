@@ -6,17 +6,21 @@ import mapboxgl from "mapbox-gl";
 import { DrawerDemo } from "~/components/map/mapfooter";
 import { MapHeader } from "~/components/map/mapheader";
 
-
 type MarkerWithPopupProps = {
   map: mapboxgl.Map | null;
   coordinates: [number, number];
   title: string;
   image: string;
-  
-  onMarkerClick: (coordinates: [number, number], title: string) => void; 
+  onMarkerClick: (coordinates: [number, number], title: string) => void;
 };
 
-export function MarkerWithPopup({ map, coordinates, title, image, onMarkerClick }: MarkerWithPopupProps) {
+export function MarkerWithPopup({
+  map,
+  coordinates,
+  title,
+  image,
+  onMarkerClick,
+}: MarkerWithPopupProps) {
   useEffect(() => {
     if (!map) return;
 
@@ -47,15 +51,13 @@ export function MarkerWithPopup({ map, coordinates, title, image, onMarkerClick 
       .setLngLat(coordinates)
       .addTo(map);
 
-    
     const handleClick = () => {
       map.flyTo({ center: coordinates, zoom: 16, duration: 800 });
-      onMarkerClick(coordinates, title); 
+      onMarkerClick(coordinates, title);
     };
-    
+
     marker.getElement().addEventListener("click", handleClick);
 
-    
     const handleZoom = () => {
       const zoom = map.getZoom();
       const scale = Math.min(1, 0.7 + (zoom - 14) * 0.05);
@@ -70,13 +72,11 @@ export function MarkerWithPopup({ map, coordinates, title, image, onMarkerClick 
       popup.remove();
       map.off("zoom", handleZoom);
       marker.getElement().removeEventListener("click", handleClick);
-      map.off("zoom", handleZoom);
     };
   }, [map, coordinates, title, image, onMarkerClick]);
 
   return null;
 }
-
 
 export const links = () => [
   {
@@ -100,19 +100,17 @@ export default function MapPage() {
   const { token } = useLoaderData<typeof loader>();
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
 
-  
   const [pinLocation, setPinLocation] = useState<[number, number] | null>(null);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [currentPlace, setCurrentPlace] = useState<string | null>(null);
   const [destinationPlace, setDestinationPlace] = useState<string | null>(null);
   const [distance, setDistance] = useState<string | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  // -------------------------
 
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const userMarkerRef = useRef<mapboxgl.Marker | null>(null);
+  const pinMarkerRef = useRef<mapboxgl.Marker | null>(null);
 
-  
   const samplePlaces: MapPlace[] = [
     {
       id: 1,
@@ -120,10 +118,8 @@ export default function MapPage() {
       coordinates: [139.720204, 35.783899],
       image: "https://picsum.photos/400/300",
     },
-    
   ];
 
-  
   const fetchDistance = async (start: [number, number], end: [number, number]) => {
     if (!token) return;
 
@@ -142,18 +138,17 @@ export default function MapPage() {
     }
   };
 
-  
   const handleMarkerClick = (coordinates: [number, number], title: string) => {
     if (userLocation) {
-        setPinLocation(coordinates); 
-        setDestinationPlace(title); 
-        setIsDrawerOpen(true); 
+      setPinLocation(coordinates);
+      setDestinationPlace(title);
+      setIsDrawerOpen(true);
     } else {
-        alert("現在地が取得できていません。");
+      alert("現在地が取得できていません。");
     }
   };
 
-  
+  /* -------------------------- 地図初期化 -------------------------- */
   useEffect(() => {
     if (!mapContainerRef.current || !token || mapRef.current) return;
 
@@ -167,51 +162,55 @@ export default function MapPage() {
 
     mapRef.current.addControl(new mapboxgl.NavigationControl(), "top-right");
 
-    
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const { longitude, latitude } = position.coords;
-          setUserLocation([longitude, latitude]);
+    /* 現在地取得 */
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { longitude, latitude } = position.coords;
+        setUserLocation([longitude, latitude]);
 
-          try {
-            const res = await fetch(
-              `https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${token}`
-            );
-            const data = await res.json();
-            setCurrentPlace(data.features?.[0]?.place_name ?? "住所取得できません");
-          } catch (error) {
-            console.error("現在地住所取得失敗:", error);
-            setCurrentPlace("住所取得できません");
-          }
+        /* 現在地住所取得 */
+        try {
+          const res = await fetch(
+            `https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${token}`
+          );
+          const data = await res.json();
+          setCurrentPlace(data.features?.[0]?.place_name ?? "住所取得できません");
+        } catch (error) {
+          console.error("現在地住所取得失敗:", error);
+          setCurrentPlace("住所取得できません");
+        }
 
-          mapRef.current?.flyTo({ center: [longitude, latitude], zoom: 14 });
-        },
-        (error) => console.error("現在地取得失敗:", error),
-        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
-      );
-    }
-    
-    
+        mapRef.current?.flyTo({ center: [longitude, latitude], zoom: 14 });
+      },
+      (error) => console.error("現在地取得失敗:", error),
+      { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+    );
+
+    /* feature/#48: クリックした場所にピンを置く */
+    mapRef.current.on("click", (e) => {
+      const newLocation: [number, number] = [e.lngLat.lng, e.lngLat.lat];
+      setPinLocation(newLocation);
+      setDestinationPlace("指定した場所");
+      setIsDrawerOpen(true);
+    });
 
     return () => {
       if (userMarkerRef.current) userMarkerRef.current.remove();
-      if (mapRef.current) mapRef.current.remove();
+      if (pinMarkerRef.current) pinMarkerRef.current.remove();
+      mapRef.current?.remove();
     };
   }, [token]);
 
-
-  
+  /* -------------------------- 距離計算 -------------------------- */
   useEffect(() => {
     if (userLocation && pinLocation) {
       fetchDistance(userLocation, pinLocation);
     } else {
       setDistance(null);
-       
     }
   }, [userLocation, pinLocation]);
 
-  
+  /* -------------------------- ユーザーアイコン表示 -------------------------- */
   useEffect(() => {
     if (!mapRef.current || !userLocation) return;
 
@@ -220,18 +219,42 @@ export default function MapPage() {
     } else {
       const el = document.createElement("div");
       el.className = "user-location-marker";
+
       userMarkerRef.current = new mapboxgl.Marker({ element: el })
         .setLngLat(userLocation)
         .addTo(mapRef.current);
     }
   }, [userLocation]);
 
+  /* -------------------------- クリックピン表示 -------------------------- */
+  useEffect(() => {
+    if (!mapRef.current) return;
+
+    if (pinLocation) {
+      if (pinMarkerRef.current) {
+        pinMarkerRef.current.setLngLat(pinLocation);
+      } else {
+        pinMarkerRef.current = new mapboxgl.Marker({ color: "#0077ff" })
+          .setLngLat(pinLocation)
+          .addTo(mapRef.current);
+      }
+
+      mapRef.current.flyTo({ center: pinLocation, zoom: 15, duration: 800 });
+    } else if (pinMarkerRef.current) {
+      pinMarkerRef.current.remove();
+      pinMarkerRef.current = null;
+    }
+  }, [pinLocation]);
+
   return (
     <div style={{ height: "100vh", display: "flex", flexDirection: "column" }}>
       <div style={{ position: "relative", height: "100%", width: "100%" }}>
         <div ref={mapContainerRef} style={{ height: "100%", width: "100%" }} />
-        
-        <MapHeader currentPlace={currentPlace ?? undefined} destinationPlace={destinationPlace ?? undefined} /> 
+
+        <MapHeader
+          currentPlace={currentPlace ?? undefined}
+          destinationPlace={destinationPlace ?? undefined}
+        />
 
         {mapRef.current &&
           samplePlaces.map((place) => (
@@ -241,16 +264,15 @@ export default function MapPage() {
               coordinates={place.coordinates}
               title={place.title}
               image={place.image}
-              
-              onMarkerClick={handleMarkerClick} 
+              onMarkerClick={handleMarkerClick}
             />
           ))}
       </div>
 
       {pinLocation && (
-        <DrawerDemo 
-          distance={distance} 
-          place={destinationPlace} 
+        <DrawerDemo
+          distance={distance}
+          place={destinationPlace}
           open={isDrawerOpen}
           onOpenChange={setIsDrawerOpen}
         />
