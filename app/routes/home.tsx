@@ -3,14 +3,14 @@ import { motion } from "framer-motion";
 import { Link } from "react-router";
 import { SparklesCore } from "~/components/ui/sparkles";
 import { BentoGrid, BentoGridItem } from "~/components/ui/bento-grid";
-import { LampContainer } from "~/components/ui/lamp";
+//import { LampContainer } from "~/components/ui/lamp";
 import { Carousel, Card } from "~/components/ui/apple-cards-carousel";
-import { AnimatedTestimonials } from "~/components/ui/animated-testimonials";
-import { ChevronDown } from "lucide-react";
+//import { AnimatedTestimonials } from "~/components/ui/animated-testimonials";
+//import { ChevronDown } from "lucide-react";
 import {
   IconArrowWaveRightUp,
   IconBoxAlignRightFilled,
-  IconBoxAlignTopLeft,
+  //IconBoxAlignTopLeft,
   IconClipboardCopy,
   IconFileBroken,
   IconSignature,
@@ -27,9 +27,9 @@ export function meta() {
   ];
 }
 
-const Skeleton = () => (
-  <div className="flex flex-1 w-full h-full min-h-[6rem] rounded-xl bg-gradient-to-br from-neutral-200 dark:from-neutral-900 dark:to-neutral-800 to-neutral-100"></div>
-);
+//const Skeleton = () => (
+//<div className="flex-1 w-full h-36 rounded-xl bg-gray-200"></div>
+//);
 
 export default function Home() {
   const [isClient, setIsClient] = useState(false);
@@ -40,52 +40,75 @@ export default function Home() {
 
   const items = [
     {
-      title: "AIがあなたの旅を自動編集",
-      description:
-        "アップロードした写真をAIが自動で選別・補正し、最適なリール動画を生成します。",
-      header: <Skeleton />,
+      title: "AIが写真からリール風動画を作成",
+      description: "",
+      header: (
+        <img
+          src="/images/movie-AI.png"
+          alt="動画生成イメージ"
+          className="w-full h-50 object-cover rounded-xl"
+        />
+      ),
       icon: <IconClipboardCopy className="h-4 w-4 text-blue-400" />,
     },
     {
       title: "位置情報から旅の地図を生成",
-      description:
-        "写真のEXIF情報を元に、旅のルートをインタラクティブマップで表示します。",
-      header: <Skeleton />,
+      description: "",
+      header: (
+        <img
+          src="/images/map-screen-AI.png"
+          alt="動画生成イメージ"
+          className="w-harf h-50 object-cover rounded-xl"
+        />
+      ),
       icon: <IconFileBroken className="h-4 w-4 text-green-400" />,
     },
     {
       title: "BGM自動選択",
-      description:
-        "旅の雰囲気に合わせてAIがBGMを自動選曲。映像体験をさらに魅力的に。",
-      header: <Skeleton />,
+      description: "",
+      header: (
+        <img
+          src="/images/app-inside-music-AI.png"
+          alt="動画生成イメージ"
+          className="w-harf h-50 object-cover rounded-xl"
+        />
+      ),
       icon: <IconSignature className="h-4 w-4 text-yellow-400" />,
     },
     {
-      title: "リールのシェア機能",
-      description:
-        "作成したリールをワンタップでSNSに共有。友人と旅の思い出を簡単にシェア。",
-      header: <Skeleton />,
+      title: "リールのお気に入り機能",
+      description: "",
+      header: (
+        <img
+          src="/images/good-marker-AI.png"
+          alt="動画生成イメージ"
+          className="w-harf h-55 object-cover rounded-xl"
+        />
+      ),
       icon: <IconTableColumn className="h-4 w-4 text-pink-400" />,
     },
     {
-      title: "クラウド保存と同期",
-      description:
-        "全てのリールを安全にクラウドへ保存。デバイスを問わずいつでもアクセス可能。",
-      header: <Skeleton />,
+      title: "マップ画面にすぐ飛べる",
+      description: "",
+      header: (
+        <img
+          src="/images/movie-to-map-AI.png"
+          alt="動画生成イメージ"
+          className="w-full h-55 object-cover rounded-xl"
+        />
+      ),
       icon: <IconArrowWaveRightUp className="h-4 w-4 text-purple-400" />,
     },
     {
-      title: "オフライン編集対応",
-      description:
-        "ネット接続がない場所でもリールのプレビューや簡易編集が可能です。",
-      header: <Skeleton />,
-      icon: <IconBoxAlignTopLeft className="h-4 w-4 text-orange-400" />,
-    },
-    {
-      title: "旅人同士のつながり",
-      description:
-        "あなたのリールを通して、同じ場所を旅した人々とつながる新しいSNS体験。",
-      header: <Skeleton />,
+      title: "自治体からのチップ機能",
+      description: "",
+      header: (
+        <img
+          src="/images/tip-happy-AI.png"
+          alt="動画生成イメージ"
+          className="w-full h-55 object-cover rounded-xl"
+        />
+      ),
       icon: <IconBoxAlignRightFilled className="h-4 w-4 text-red-400" />,
     },
   ];
@@ -101,57 +124,145 @@ export default function Home() {
         />
       </div>
 
-      <div className="relative z-10 flex flex-col items-center justify-center text-center h-screen px-6">
-        <motion.h1
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1 }}
-          className="text-6xl md:text-8xl font-bold tracking-tight bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent"
-        >
-          ReelTrip
-        </motion.h1>
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 1 }}
-          className="mt-6 max-w-2xl text-lg text-gray-300"
-        >
-          写真をアップロードするだけで、AIがあなたの旅をリール映像に。新しいSNS体験がここに。
-        </motion.p>
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.2 }}
-        >
-          <Link to="/signup">
-            <button className="mt-10 px-10 py-4 bg-white text-black font-semibold rounded-full shadow-lg hover:bg-gray-200 transition">
-              今すぐ始める
-            </button>
-          </Link>
-        </motion.div>
+      <div className="relative min-h-screen w-full overflow-hidden bg-gradient-to-b from-blue-900 via-blue-800 to-blue-700 text-white font-sans">
+        {/* 背景 */}
+        <div className="absolute inset-0">
+          {/* 旅イラストを薄く重ねる */}
+          <img
+            src="/images/travel-icons.png" // 透明背景の旅行アイコンをまとめた画像
+            className="w-full h-full object-cover opacity-10"
+            alt="travel icons"
+          />
+
+          {/* SparklesCoreでカラフルな紙吹雪っぽい粒 */}
+          <SparklesCore
+            background="transparent"
+            minSize={0.2}
+            maxSize={0.8}
+            particleDensity={40}
+            className="w-full h-full text-yellow-400" // bg-white の代わりに Tailwind の色を反映
+          />
+
+          {/* コンフェッティ粒 */}
+          <div className="absolute inset-0 pointer-events-none">
+            <SparklesCore
+              background="transparent"
+              minSize={0.2}
+              maxSize={1}
+              particleDensity={60}
+              className="w-full h-full"
+            />
+          </div>
+
+          {/* 旅アイコン：スーツケース（左下） */}
+          <motion.img
+            src="/images/bag-AI.png"
+            className="absolute bottom-16 left-10 w-60 h-auto opacity-90 drop-shadow-xl"
+            animate={{ y: [0, -10, 0], rotate: [-6, -2, -6] }}
+            transition={{ repeat: Infinity, duration: 6 }}
+          />
+
+          {/* 電車（右上） */}
+          <motion.img
+            src="/images/Train-AI.png"
+            className="absolute top-14 right-35 w-80 h-auto opacity-90"
+            animate={{ x: [0, 20, 0], y: [0, -8, 0], rotate: [-6, 10, -6] }}
+            transition={{ repeat: Infinity, duration: 5 }}
+          />
+
+          {/* カメラ（右下） */}
+          <motion.img
+            src="/images/camera-AI.png"
+            className="absolute bottom-10 right-16 w-50 h-auto opacity-90"
+            animate={{ y: [0, 12, 0], rotate: [-6, -20, -6] }}
+            transition={{ repeat: Infinity, duration: 5 }}
+          />
+          {/* map（コレ！） */}
+          <motion.img
+            src="/images/map-AI.png"
+            className="absolute w-56 h-auto top-20 left-10 opacity-70"
+            animate={{ x: [0, 20, 0], y: [0, -10, 0] }}
+            transition={{ repeat: Infinity, duration: 4 }}
+          />
+
+          {/* ヒーローコンテンツ */}
+          <div className="relative z-10 flex flex-col items-center justify-center h-screen px-6">
+            {/* キラキラするタイトル */}
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1 }}
+              className="text-6xl md:text-8xl font-bold tracking-tight bg-gradient-to-r from-white via-sky-200 to-white bg-clip-text text-transparent animate-pulse"
+            >
+              ReelTrip
+            </motion.h1>
+
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 1 }}
+              className="mt-6 max-w-2xl text-lg text-gray-100 text-center"
+            >
+              写真をアップロードするだけで、AIがあなたの旅をリール映像に。
+              新しいSNS体験がここに。
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.2 }}
+            >
+              <Link to="/signup">
+                <button className="mt-10 px-10 py-4 bg-white text-black font-semibold rounded-full shadow-xl hover:bg-gray-200 transition">
+                  今すぐ始める
+                </button>
+              </Link>
+            </motion.div>
+          </div>
+        </div>
+
+        {/* ヒーローコンテンツ */}
+        <div className="relative z-10 flex flex-col items-center justify-center text-center h-screen px-6">
+          <motion.h1
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1 }}
+            className="text-6xl md:text-8xl font-bold tracking-tight bg-gradient-to-r from-white to-sky-300 bg-clip-text text-transparent"
+          >
+            ReelTrip
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 1 }}
+            className="mt-6 max-w-2xl text-lg text-gray-100"
+          >
+            写真をアップロードするだけで、AIがあなたの旅をリール映像に。新しいSNS体験がここに。
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.2 }}
+          >
+            <Link to="/signup">
+              <button className="mt-10 px-10 py-4 bg-white text-black font-semibold rounded-full shadow-lg hover:bg-gray-200 transition">
+                今すぐ始める
+              </button>
+            </Link>
+          </motion.div>
+        </div>
       </div>
 
-      <section className="relative z-10 bg-gradient-to-b from-black via-gray-900 to-black">
-        <LampContainer>
-          <motion.h2
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, ease: "easeOut" }}
-            className="mt-24 bg-gradient-to-br from-slate-200 to-slate-400 py-6 bg-clip-text text-center text-6xl md:text-6xl font-bold tracking-tight text-transparent"
-          >
-            ReelTripでできること
-          </motion.h2>
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.8 }}
-            className="flex justify-center mt-8"
-          >
-            <ChevronDown className="w-12 h-12 text-gray-300 animate-bounce" />
-          </motion.div>
-        </LampContainer>
-        <div className="max-w-6xl mx-auto px-6">
-          <BentoGrid className="max-w-4xl mx-auto">
+      <section className="relative z-10 bg-gradient-to-b from-blue-700 via-blue-500 to-blue-300 overflow-hidden py-16">
+        {/* 見出し */}
+        <h2 className="text-white text-4xl md:text-5xl font-bold text-center mb-12">
+          ReelTripでできること↓
+        </h2>
+
+        <div className="max-w-6xl mx-auto gap-y-8 gap-x-6">
+          <BentoGrid className="max-w-4xl mx-auto grid grid-cols-3 gap-6 auto-rows-[10rem]">
             {items.map((item, i) => (
               <BentoGridItem
                 key={i}
@@ -159,68 +270,16 @@ export default function Home() {
                 description={item.description}
                 header={item.header}
                 icon={item.icon}
-                className={i === 3 || i === 6 ? "md:col-span-2" : ""}
+                className="!h-[28rem] flex flex-col justify-start gap-4"
               />
             ))}
           </BentoGrid>
         </div>
       </section>
 
-      <section className="relative z-10 py-32 bg-gradient-to-t from-black to-gray-900">
-        <div className="max-w-6xl mx-auto px-6 text-center">
-          <h2 className="text-4xl font-bold mb-10">ユーザーの声</h2>
-          <AnimatedTestimonials
-            testimonials={[
-              {
-                name: "1",
-                quote:
-                  "動画生成が早くて自然。SNS共有もワンタップでできて、投稿の手間が減った。",
-                designation: "映像クリエイター",
-                src: "/avatars/1.png",
-              },
-              {
-                name: "2",
-                quote:
-                  "ReelTripで旅行の写真をAIが編集してくれるのがすごい。旅の感動をそのまま映像に残せた。",
-                designation: "旅行フォトグラファー",
-                src: "/avatars/2.png",
-              },
-              {
-                name: "3",
-                quote:
-                  "思い出をリールにまとめられるのが楽しい。音楽や映像がAIでマッチするのが驚き。",
-                designation: "旅好きライター",
-                src: "/avatars/3.png",
-              },
-              {
-                name: "4",
-                quote:
-                  "家族旅行の写真をアップしただけで、まるでプロが作ったような映像に。子どもたちも大喜び！",
-                designation: "会社員・父親",
-                src: "/avatars/4.png",
-              },
-              {
-                name: "5",
-                quote:
-                  "撮影地のルートが自動で地図に表示されて便利。旅の記録をまとめるのに最適なアプリ。",
-                designation: "バックパッカー",
-                src: "/avatars/5.png",
-              },
-              {
-                name: "6",
-                quote:
-                  "オフラインでも編集できるのが助かる。山登りやキャンプの記録にも使える。",
-                designation: "アウトドア愛好家",
-                src: "/avatars/6.png",
-              },
-            ]}
-          />
-        </div>
-      </section>
-
-      <section className="relative z-10 bg-black py-24 border-t border-gray-800 overflow-hidden">
+      <section className="relative z-10 bg-gradient-to-b from-white via-blue-200 to-blue-700 py-24 border-t border-gray-200 overflow-hidden">
         <div className="w-full h-full py-20">
-          <h2 className="max-w-7xl pl-4 mx-auto text-xl md:text-5xl font-bold text-neutral-200 font-sans text-center mb-16">
+          <h2 className="max-w-7xl pl-4 mx-auto text-xl md:text-5xl font-bold text-gray-900 font-sans text-center mb-16">
             人気のリール
           </h2>
           {isClient && (
@@ -233,12 +292,12 @@ export default function Home() {
         </div>
       </section>
 
-      <footer className="relative z-10 py-24 text-center bg-gradient-to-t from-gray-900 to-black">
+      <footer className="relative z-10 py-24 text-center bg-gradient-to-b from-blue-700 via-blue-200 to-white">
         <motion.h3
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-4xl font-semibold mb-6"
+          className="text-4xl font-semibold mb-6 text-gray-900 drop-shadow-lg"
         >
           あなたの旅を、リールにしよう。
         </motion.h3>
@@ -277,7 +336,7 @@ const DummyContent = () => (
 const data = [
   {
     category: "都市",
-    title: "東京の夜景リール",
+    title: "東京の夜景",
     src: "https://be-en.co.jp/cdn/shop/products/0307134812_6406c20ced583.jpg?v=1708723259",
     content: <DummyContent />,
   },
