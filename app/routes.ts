@@ -18,10 +18,11 @@ export default [
   { path: "use-points", file: "routes/use-points/index.tsx" },
   { path: "reels/preview", file: "routes/preview/index.tsx" },
   { path: "AI", file: "routes/AI-test/ai-test.tsx" },
-  
+
   //API関連
   { path: "api/auth/session", file: "routes/api/auth/session/route.ts" },
   { path: "api/auth/logout", file: "routes/api/auth/logout/route.ts" },
   { path: "api/upload", file: "routes/api/upload/route.ts" },
+  { path: "api/ai", file: "routes/api/ai/route.ts" },
   { path: "api/files/:objectName", file: "routes/api/files/route.ts" },
 ] satisfies RouteConfig;

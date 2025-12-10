@@ -49,7 +49,7 @@ model Picture {
   price  Int    @default(0)
   name   String @default("")
 
-  genre Genre   @default(None)
+  genre  Genre   @default(None)
 
   fileId String
   file   File   @relation(fields: [fileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
