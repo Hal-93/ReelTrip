@@ -1,5 +1,5 @@
 import { prisma } from "~/lib/service/prisma";
-import type { Picture } from "@prisma/client";
+import type { Genre, Picture } from "@prisma/client";
 
 type CreatePictureParams = {
   userId: string;
@@ -10,10 +10,12 @@ type CreatePictureParams = {
   height: number;
   date: string;
   price?: number;
+  genre?: Genre;
+  
 };
 
 export async function createPicture(params: CreatePictureParams) {
-  const { userId, fileId, lat, lng, width, height, date, price } = params;
+  const { userId, fileId, lat, lng, width, height, date, price, genre } = params;
 
   try {
     return await prisma.picture.create({
@@ -27,6 +29,7 @@ export async function createPicture(params: CreatePictureParams) {
         height,
         date,
         price,
+        genre,
       },
     });
   } catch (e) {

@@ -2,6 +2,7 @@ import React, { useRef, useState } from "react";
 import * as exifr from "exifr";
 import { getUser } from "~/lib/models/auth.server";
 import { redirect, useLoaderData, type LoaderFunctionArgs } from "react-router";
+import { useNavigate } from "react-router";
 import {
   Dialog,
   DialogContent,
@@ -19,6 +20,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export default function Upload() {
+  const navigate = useNavigate();
   const { user } = useLoaderData();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -394,11 +396,11 @@ export default function Upload() {
 
       if (response.ok) {
         setMessage("ファイルのアップロードに成功しました。");
-        setSelectedFile(null);
-        setPreviewUrl(null);
-        if (fileInputRef.current) {
-          fileInputRef.current.value = "";
-        }
+        setIsExifOpen(false);
+
+        setTimeout(() => {
+          navigate("/home");
+        }, 300);
       } else {
         setMessage("ファイルのアップロードに失敗しました。");
       }

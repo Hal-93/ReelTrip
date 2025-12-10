@@ -24,7 +24,7 @@ export const action: ActionFunction = async ({ request }) => {
         content: [
           {
             type: "text",
-            text: "genre と quality を JSON 形式で返せ",
+            text: "画像を分類するAIです",
           },
         ],
       },
@@ -33,7 +33,7 @@ export const action: ActionFunction = async ({ request }) => {
         content: [
           {
             type: "text",
-            text: "写真内容から genre(G/A/S/N) と quality(true/false) を分類し、JSON で返せ。",
+            text: "写真内容からジャンル(Gourmet/Activity/Sightseeing/None)の頭文字G,A,S,N と quality(true/false)を分類し、JSONで返せ。",
           },
           {
             type: "image_url",

@@ -64,6 +64,8 @@ model Reel {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   pictures Picture[]
+  
+  caption String?
 }
 
 model File {
