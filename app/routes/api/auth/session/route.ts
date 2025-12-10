@@ -20,7 +20,12 @@ export async function action({ request }: ActionFunctionArgs) {
   try {
     const body = await request.json();
     const idToken = body?.idToken;
-    if (!idToken) return;
+    if (!idToken) {
+      return new Response(JSON.stringify({ error: "Missing idToken" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
 
     const decoded = await admin.auth().verifyIdToken(idToken);
 
@@ -42,6 +47,9 @@ export async function action({ request }: ActionFunctionArgs) {
     return redirect("/home", { headers });
   } catch (error) {
     console.error("🔥 Session action error:", error);
-    return;
+    return new Response(JSON.stringify({ error: "Session error" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 }

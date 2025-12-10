@@ -31,8 +31,12 @@ export default function Upload() {
   > | null>(null);
   const [exifError, setExifError] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const isAnalyzeDisabled = !selectedFile || isAnalyzing;
   const [isPreviewLoading, setIsPreviewLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const [aiResult, setAiResult] = useState<string | null>(null);
+  const [genre, setGenre] = useState<string>("N");
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (typeof window === "undefined") return;
@@ -294,26 +298,55 @@ export default function Upload() {
       return;
     }
 
-    if (exifInfo) {
-      setIsExifOpen(true);
-      setIsAnalyzing(false);
-      return;
-    }
-
-    try {
-      const info = await extractBasicExif(selectedFile);
+    let info = exifInfo;
+    if (!info) {
+      info = await extractBasicExif(selectedFile);
       setExifInfo(info);
       if (!info) {
         setExifError("EXIF情報が見つかりませんでした。");
       }
-      setIsExifOpen(true);
-    } catch (err) {
-      setExifInfo(null);
-      setExifError(err instanceof Error ? err.message : "解析に失敗しました。");
-      setIsExifOpen(true);
-    } finally {
-      setIsAnalyzing(false);
     }
+
+    console.log("AI start");
+    let result: string | null = null;
+    try {
+      const fd = new FormData();
+      fd.append("file", selectedFile);
+
+      const res = await fetch("/api/ai", {
+        method: "POST",
+        body: fd,
+      });
+
+      const data = await res.json();
+      result = data.result ?? null;
+
+      console.log("AI解析結果:", result);
+      setAiResult(result);
+
+      if (typeof result === "string") {
+        try {
+          const cleaned = result
+            .replace(/```json/i, "")
+            .replace(/```/g, "")
+            .trim();
+          const parsed: { genre?: string } = JSON.parse(cleaned);
+          if (parsed.genre) setGenre(parsed.genre);
+        } catch {
+          // パース失敗時は無視
+        }
+      }
+
+      if (info && result) {
+        (info as Record<string, string | number>)["AI Result"] = typeof result === "string" ? result : String(result);
+      }
+    } catch (e) {
+      console.error("AI解析エラー", e);
+    }
+
+    setIsExifOpen(true);
+
+    setIsAnalyzing(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -347,6 +380,7 @@ export default function Upload() {
       }
       formData.append("price", "0");
     }
+    formData.append("genre", genre);
 
     try {
       const response = await fetch("/api/upload", {
@@ -376,6 +410,20 @@ export default function Upload() {
       setIsUploading(false);
     }
   };
+
+  const isQualityBad = (() => {
+    if (!aiResult) return false;
+    try {
+      const cleaned = aiResult
+        .replace(/```json/i, "")
+        .replace(/```/g, "")
+        .trim();
+      const parsed = JSON.parse(cleaned);
+      return parsed.quality === false;
+    } catch {
+      return false;
+    }
+  })();
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6">
@@ -430,22 +478,18 @@ export default function Upload() {
             <button
               type="button"
               onClick={handleAnalyze}
-              className="w-full mb-3 bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold py-2 px-4 rounded-md transition-colors duration-200"
+              disabled={isAnalyzeDisabled}
+              className={`w-full mb-3 bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold py-2 px-4 rounded-md transition-colors duration-200 ${
+                isAnalyzeDisabled ? "opacity-50 cursor-not-allowed hover:bg-gray-100" : ""
+              }`}
             >
-              分析
-            </button>
-            <button
-              type="submit"
-              disabled={isUploading}
-              className={`w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-sm transition-colors duration-200 ${isUploading ? "opacity-50 cursor-not-allowed" : ""}`}
-            >
-              {isUploading ? "アップロード中..." : "アップロード"}
+              画像を確認
             </button>
           </>
         ) : (
           <div className="flex justify-center items-center py-4">
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900"></div>
-            <span className="ml-2 text-gray-700 text-sm">分析中...</span>
+            <span className="ml-2 text-gray-700 text-sm">画像を確認しています</span>
           </div>
         )}
       </form>
@@ -471,6 +515,46 @@ export default function Upload() {
               情報はありませんでした。
             </p>
           ) : null}
+          <div className="mt-4">
+            <label className="block text-sm mb-1">この画像のジャンル</label>
+            <select
+              value={genre}
+              onChange={(e) => setGenre(e.target.value)}
+              className="w-full border rounded-sm p-2 text-sm"
+            >
+              <option value="N">なし</option>
+              <option value="A">アクティビティ</option>
+              <option value="S">景色</option>
+              <option value="G">食事</option>
+            </select>
+            <p>※AIが判断した結果が表示されています。修正が可能です。</p>
+          </div>
+          {isQualityBad ?
+          <>
+            この画像は品質基準を満たしていないため投稿できません。
+            <br/>
+            詳しくは投稿ガイドをご確認ください。
+          </>:
+          <>
+            この画像はアップロードできます
+            <br/>
+          </>
+          
+          }
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={isUploading || isQualityBad}
+            className={`w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-sm transition-colors duration-200 ${
+              isUploading || isQualityBad ? "opacity-50 cursor-not-allowed hover:bg-blue-600" : ""
+            }`}
+          >
+            {isQualityBad
+              ? "アップロード不可"
+              : isUploading
+              ? "アップロード中..."
+              : "アップロード"}
+          </button>
         </DialogContent>
       </Dialog>
     </div>
