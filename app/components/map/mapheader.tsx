@@ -1,8 +1,8 @@
 import { ArrowLeft, Circle, MapPin } from "lucide-react";
 
 type MapHeaderProps = {
-  currentPlace?: string;      // 現在地の住所
-  destinationPlace?: string;  // ピンの住所
+  currentPlace?: string; // 現在地の住所
+  destinationPlace?: string; // ピンの住所
 };
 
 export function MapHeader({ currentPlace, destinationPlace }: MapHeaderProps) {

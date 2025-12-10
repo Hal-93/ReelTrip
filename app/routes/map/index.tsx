@@ -11,7 +11,11 @@ type MarkerWithPopupProps = {
   coordinates: [number, number];
   title: string;
   image: string;
-  onMarkerClick: (coordinates: [number, number], title: string) => void;
+  onMarkerClick: (
+    coordinates: [number, number],
+    title: string,
+    image: string
+  ) => void;
 };
 
 export function MarkerWithPopup({
@@ -53,7 +57,7 @@ export function MarkerWithPopup({
 
     const handleClick = () => {
       map.flyTo({ center: coordinates, zoom: 16, duration: 800 });
-      onMarkerClick(coordinates, title);
+      onMarkerClick(coordinates, title, image);
     };
 
     marker.getElement().addEventListener("click", handleClick);
@@ -104,6 +108,7 @@ export default function MapPage() {
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [currentPlace, setCurrentPlace] = useState<string | null>(null);
   const [destinationPlace, setDestinationPlace] = useState<string | null>(null);
+  const [destinationImage, setDestinationImage] = useState<string | null>(null);
   const [distance, setDistance] = useState<string | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
@@ -120,7 +125,10 @@ export default function MapPage() {
     },
   ];
 
-  const fetchDistance = async (start: [number, number], end: [number, number]) => {
+  const fetchDistance = async (
+    start: [number, number],
+    end: [number, number]
+  ) => {
     if (!token) return;
 
     const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${start[0]},${start[1]};${end[0]},${end[1]}?access_token=${token}`;
@@ -138,17 +146,23 @@ export default function MapPage() {
     }
   };
 
-  const handleMarkerClick = (coordinates: [number, number], title: string) => {
-    if (userLocation) {
-      setPinLocation(coordinates);
-      setDestinationPlace(title);
-      setIsDrawerOpen(true);
-    } else {
+  const handleMarkerClick = (
+    coordinates: [number, number],
+    title: string,
+    image: string
+  ) => {
+    if (!userLocation) {
       alert("現在地が取得できていません。");
+      return;
     }
+
+    setPinLocation(coordinates);
+    setDestinationPlace(title);
+    setDestinationImage(image);
+    setIsDrawerOpen(true);
   };
 
-  /* -------------------------- 地図初期化 -------------------------- */
+  /* -------------------------- Map 初期化 -------------------------- */
   useEffect(() => {
     if (!mapContainerRef.current || !token || mapRef.current) return;
 
@@ -162,13 +176,11 @@ export default function MapPage() {
 
     mapRef.current.addControl(new mapboxgl.NavigationControl(), "top-right");
 
-    /* 現在地取得 */
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         const { longitude, latitude } = position.coords;
         setUserLocation([longitude, latitude]);
 
-        /* 現在地住所取得 */
         try {
           const res = await fetch(
             `https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${token}`
@@ -186,17 +198,18 @@ export default function MapPage() {
       { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
     );
 
-    /* feature/#48: クリックした場所にピンを置く */
+    /* クリックでピンを置く */
     mapRef.current.on("click", (e) => {
       const newLocation: [number, number] = [e.lngLat.lng, e.lngLat.lat];
       setPinLocation(newLocation);
       setDestinationPlace("指定した場所");
+      setDestinationImage(null);
       setIsDrawerOpen(true);
     });
 
     return () => {
-      if (userMarkerRef.current) userMarkerRef.current.remove();
-      if (pinMarkerRef.current) pinMarkerRef.current.remove();
+      userMarkerRef.current?.remove();
+      pinMarkerRef.current?.remove();
       mapRef.current?.remove();
     };
   }, [token]);
@@ -205,38 +218,35 @@ export default function MapPage() {
   useEffect(() => {
     if (userLocation && pinLocation) {
       fetchDistance(userLocation, pinLocation);
-    } else {
-      setDistance(null);
     }
   }, [userLocation, pinLocation]);
 
-  /* -------------------------- ユーザーアイコン表示 -------------------------- */
+  /* -------------------------- 現在地マーカー -------------------------- */
   useEffect(() => {
     if (!mapRef.current || !userLocation) return;
 
-    if (userMarkerRef.current) {
-      userMarkerRef.current.setLngLat(userLocation);
-    } else {
+    if (!userMarkerRef.current) {
       const el = document.createElement("div");
       el.className = "user-location-marker";
-
       userMarkerRef.current = new mapboxgl.Marker({ element: el })
         .setLngLat(userLocation)
         .addTo(mapRef.current);
+    } else {
+      userMarkerRef.current.setLngLat(userLocation);
     }
   }, [userLocation]);
 
-  /* -------------------------- クリックピン表示 -------------------------- */
+  /* -------------------------- ピンマーカー -------------------------- */
   useEffect(() => {
     if (!mapRef.current) return;
 
     if (pinLocation) {
-      if (pinMarkerRef.current) {
-        pinMarkerRef.current.setLngLat(pinLocation);
-      } else {
+      if (!pinMarkerRef.current) {
         pinMarkerRef.current = new mapboxgl.Marker({ color: "#0077ff" })
           .setLngLat(pinLocation)
           .addTo(mapRef.current);
+      } else {
+        pinMarkerRef.current.setLngLat(pinLocation);
       }
 
       mapRef.current.flyTo({ center: pinLocation, zoom: 15, duration: 800 });
@@ -273,6 +283,8 @@ export default function MapPage() {
         <DrawerDemo
           distance={distance}
           place={destinationPlace}
+          spotTitle={destinationPlace}
+          spotImage={destinationImage}
           open={isDrawerOpen}
           onOpenChange={setIsDrawerOpen}
         />
