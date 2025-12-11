@@ -6,7 +6,11 @@ type MarkerProps = {
   coordinates: [number, number];
   title: string;
   image: string;
-  onPopupClick: (coords: [number, number], title: string, image: string) => void;
+  onPopupClick: (
+    coords: [number, number],
+    title: string,
+    image: string,
+  ) => void;
 };
 
 export function MarkerWithPopup({
@@ -25,8 +29,8 @@ export function MarkerWithPopup({
     popupContainer.className = "popup-content";
     popupContainer.style.cursor = "pointer";
     popupContainer.style.padding = "4px";
-    popupContainer.style.maxWidth = "180px";  // 幅を小さく
-    popupContainer.style.fontSize = "12px";   // フォントを小さく
+    popupContainer.style.maxWidth = "180px"; // 幅を小さく
+    popupContainer.style.fontSize = "12px"; // フォントを小さく
 
     popupContainer.innerHTML = `
       <h4 style="margin:0 0 2px 0; font-size:12px;">${title}</h4>
@@ -56,8 +60,9 @@ export function MarkerWithPopup({
     // ズームに応じた表示/非表示（14未満で非表示）
     const handleZoom = () => {
       const zoom = map.getZoom();
-      if (zoom < 11) {       // 変更ポイント
-        popup.remove();       // ズームアウトで非表示
+      if (zoom < 11) {
+        // 変更ポイント
+        popup.remove(); // ズームアウトで非表示
       } else {
         if (!popup.isOpen()) popup.addTo(map); // ズームインで再表示
       }

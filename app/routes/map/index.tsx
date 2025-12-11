@@ -30,7 +30,9 @@ export default function MapPage() {
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
 
-  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+  const [userLocation, setUserLocation] = useState<[number, number] | null>(
+    null,
+  );
   const [currentPlace, setCurrentPlace] = useState<string | null>(null);
   const [destinationPlace, setDestinationPlace] = useState<string | null>(null);
   const [destinationImage, setDestinationImage] = useState<string | null>(null);
@@ -68,7 +70,7 @@ export default function MapPage() {
         setUserLocation([longitude, latitude]);
 
         const r = await fetch(
-          `https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${token}`
+          `https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${token}`,
         );
         const d = await r.json();
         setCurrentPlace(d.features?.[0]?.place_name ?? "現在地");
@@ -78,7 +80,7 @@ export default function MapPage() {
           zoom: 14,
         });
       },
-      () => console.error("位置情報拒否")
+      () => console.error("位置情報拒否"),
     );
 
     return () => {
@@ -91,8 +93,8 @@ export default function MapPage() {
     if (!mapRef.current || !userLocation) return;
 
     const el = document.createElement("div");
-    el.style.width = "28px";       // 幅を大きく
-    el.style.height = "28px";      // 高さを大きく
+    el.style.width = "28px"; // 幅を大きく
+    el.style.height = "28px"; // 高さを大きく
     el.style.backgroundColor = "#1D9BF0";
     el.style.borderRadius = "50%";
     el.style.border = "4px solid white"; // ボーダー太め
@@ -125,13 +127,13 @@ export default function MapPage() {
   const handlePopupClick = async (
     coordinates: [number, number],
     title: string,
-    image: string
+    image: string,
   ) => {
     setPinLocation(coordinates);
     setDestinationImage(image);
 
     const r = await fetch(
-      `https://api.mapbox.com/geocoding/v5/mapbox.places/${coordinates[0]},${coordinates[1]}.json?access_token=${token}`
+      `https://api.mapbox.com/geocoding/v5/mapbox.places/${coordinates[0]},${coordinates[1]}.json?access_token=${token}`,
     );
     const d = await r.json();
     const placeName = d.features?.[0]?.place_name ?? title;
