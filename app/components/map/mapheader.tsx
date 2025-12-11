@@ -1,8 +1,8 @@
 import { ArrowLeft, Circle, MapPin } from "lucide-react";
 
 type MapHeaderProps = {
-  currentPlace?: string; // 現在地の住所
-  destinationPlace?: string; // ピンの住所
+  currentPlace?: string; // 現在地住所
+  destinationPlace?: string; // 目的地住所
 };
 
 export function MapHeader({ currentPlace, destinationPlace }: MapHeaderProps) {
@@ -15,7 +15,7 @@ export function MapHeader({ currentPlace, destinationPlace }: MapHeaderProps) {
       <div className="bg-[#004f83] bg-opacity-80 p-4 rounded-xl shadow-lg w-10/12">
         <div className="flex items-center space-x-3">
           <div className="flex-1 flex flex-col space-y-2">
-            {/* 現在地の入力行 */}
+            {/* 現在地 */}
             <div className="flex items-center space-x-3">
               <div className="relative flex items-center justify-center">
                 <Circle className="h-6 w-6 text-sky-500" />
@@ -30,7 +30,7 @@ export function MapHeader({ currentPlace, destinationPlace }: MapHeaderProps) {
 
             <div className="flex-1 border-b border-white"></div>
 
-            {/* 目的地の入力行 */}
+            {/* 目的地 */}
             <div className="flex items-center space-x-3">
               <MapPin className="text-red-500 h-6 w-6 " />
               <div className="flex-1">
