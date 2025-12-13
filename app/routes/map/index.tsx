@@ -14,7 +14,7 @@ type MarkerWithPopupProps = {
   onMarkerClick: (
     coordinates: [number, number],
     title: string,
-    image: string
+    image: string,
   ) => void;
 };
 
@@ -105,7 +105,9 @@ export default function MapPage() {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
 
   const [pinLocation, setPinLocation] = useState<[number, number] | null>(null);
-  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+  const [userLocation, setUserLocation] = useState<[number, number] | null>(
+    null,
+  );
   const [currentPlace, setCurrentPlace] = useState<string | null>(null);
   const [destinationPlace, setDestinationPlace] = useState<string | null>(null);
   const [destinationImage, setDestinationImage] = useState<string | null>(null);
@@ -127,7 +129,7 @@ export default function MapPage() {
 
   const fetchDistance = async (
     start: [number, number],
-    end: [number, number]
+    end: [number, number],
   ) => {
     if (!token) return;
 
@@ -149,7 +151,7 @@ export default function MapPage() {
   const handleMarkerClick = (
     coordinates: [number, number],
     title: string,
-    image: string
+    image: string,
   ) => {
     if (!userLocation) {
       alert("現在地が取得できていません。");
@@ -183,10 +185,12 @@ export default function MapPage() {
 
         try {
           const res = await fetch(
-            `https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${token}`
+            `https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${token}`,
           );
           const data = await res.json();
-          setCurrentPlace(data.features?.[0]?.place_name ?? "住所取得できません");
+          setCurrentPlace(
+            data.features?.[0]?.place_name ?? "住所取得できません",
+          );
         } catch (error) {
           console.error("現在地住所取得失敗:", error);
           setCurrentPlace("住所取得できません");
@@ -195,7 +199,7 @@ export default function MapPage() {
         mapRef.current?.flyTo({ center: [longitude, latitude], zoom: 14 });
       },
       (error) => console.error("現在地取得失敗:", error),
-      { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+      { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 },
     );
 
     /* クリックでピンを置く */

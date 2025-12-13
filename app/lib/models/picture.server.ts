@@ -11,11 +11,11 @@ type CreatePictureParams = {
   date: string;
   price?: number;
   genre?: Genre;
-  
 };
 
 export async function createPicture(params: CreatePictureParams) {
-  const { userId, fileId, lat, lng, width, height, date, price, genre } = params;
+  const { userId, fileId, lat, lng, width, height, date, price, genre } =
+    params;
 
   try {
     return await prisma.picture.create({

@@ -25,7 +25,12 @@ export async function action({ request }: ActionFunctionArgs) {
     const date = formData.get("date");
     const price = formData.get("price");
     const genre = formData.get("genre");
-    let mappedGenre: "None" | "Gourmet" | "Sightseeing" | "Activity" | undefined;
+    let mappedGenre:
+      | "None"
+      | "Gourmet"
+      | "Sightseeing"
+      | "Activity"
+      | undefined;
     switch (genre) {
       case "N":
         mappedGenre = "None";
@@ -68,7 +73,7 @@ export async function action({ request }: ActionFunctionArgs) {
         height: Number(height),
         date: String(date),
         price: price ? Number(price) : undefined,
-        genre: mappedGenre
+        genre: mappedGenre,
       });
     } catch (error) {
       console.error(error);
