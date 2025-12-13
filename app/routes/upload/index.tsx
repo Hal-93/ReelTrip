@@ -121,6 +121,7 @@ export default function Upload() {
         console.error("HEIC変換エラー:", err);
         setMessage("HEIC画像の変換またはEXIF抽出に失敗しました。");
         setSelectedFile(null);
+        console.log(exifError);
       }
       return;
     }
@@ -555,7 +556,9 @@ export default function Upload() {
               </div>
               <div className="mt-4">
                 <label className="block text-sm font-medium mb-1">予算</label>
-                <p className="text-xs text-gray-600 mb-2">いくらぐらいかかりましたか?</p>
+                <p className="text-xs text-gray-600 mb-2">
+                  いくらぐらいかかりましたか?
+                </p>
                 <div className="flex items-center rounded-sm border p-2">
                   <span className="mr-1 text-gray-700 text-sm">¥</span>
                   <input
