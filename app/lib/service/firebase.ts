@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAnalytics, isSupported } from "firebase/analytics";
-import { getAuth } from "firebase/auth";
+import { getAuth, setPersistence, browserLocalPersistence } from "firebase/auth";
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -23,6 +23,10 @@ const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
 // Auth の初期化
 const auth = getAuth(app);
+// Set persistence to local to keep user logged in across sessions (only in browser)
+if (typeof window !== "undefined") {
+  setPersistence(auth, browserLocalPersistence);
+}
 
 // Analytics はクライアントのみ有効
 let analytics: ReturnType<typeof getAnalytics> | null = null;
