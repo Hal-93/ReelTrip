@@ -10,6 +10,7 @@ import { UserSidebar } from "~/components/basic/usermenu";
 import { getFilesByUser } from "~/lib/models/file.server";
 import { Link } from "react-router";
 import { Plus } from "lucide-react";
+import TaskBar from "~/components/taskbar/taskbar";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await getUser(request);
@@ -126,6 +127,8 @@ export default function Home() {
       >
         <Plus />
       </Link>
+      <TaskBar />
+
     </div>
   );
 }

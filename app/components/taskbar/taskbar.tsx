@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import TaskBarItem from "./taskbar-item";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -10,6 +11,7 @@ import {
 
 const TaskBar: React.FC = () => {
   const [activeTab, setActiveTab] = useState("home");
+  const navigate = useNavigate();
 
   const items = [
     { id: "home", label: "ホーム", icon: <FontAwesomeIcon icon={faHouse} /> },
@@ -31,7 +33,12 @@ const TaskBar: React.FC = () => {
             label={item.label}
             icon={item.icon}
             isActive={activeTab === item.id}
-            onClick={() => setActiveTab(item.id)}
+            onClick={() => {
+              setActiveTab(item.id);
+              if (item.id === "post") navigate("/post");
+              else if (item.id === "home") navigate("/");
+              else if (item.id === "mypage") navigate("/mypage");
+            }}
           />
         ))}
       </div>
