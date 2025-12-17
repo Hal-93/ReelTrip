@@ -2,6 +2,7 @@ import React, { useRef, useState } from "react";
 import * as exifr from "exifr";
 import { getUser } from "~/lib/models/auth.server";
 import { redirect, useLoaderData, type LoaderFunctionArgs } from "react-router";
+import { useNavigate } from "react-router";
 import {
   Dialog,
   DialogContent,
@@ -19,6 +20,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export default function Upload() {
+  const navigate = useNavigate();
   const { user } = useLoaderData();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -37,6 +39,7 @@ export default function Upload() {
 
   const [aiResult, setAiResult] = useState<string | null>(null);
   const [genre, setGenre] = useState<string>("N");
+  const [price, setPrice] = useState<string>("0");
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (typeof window === "undefined") return;
@@ -118,6 +121,7 @@ export default function Upload() {
         console.error("HEIC変換エラー:", err);
         setMessage("HEIC画像の変換またはEXIF抽出に失敗しました。");
         setSelectedFile(null);
+        console.log(exifError);
       }
       return;
     }
@@ -307,7 +311,6 @@ export default function Upload() {
       }
     }
 
-    console.log("AI start");
     let result: string | null = null;
     try {
       const fd = new FormData();
@@ -379,7 +382,7 @@ export default function Upload() {
       if (exifInfo["撮影日時(DateTimeOriginal)"] !== undefined) {
         formData.append("date", String(exifInfo["撮影日時(DateTimeOriginal)"]));
       }
-      formData.append("price", "0");
+      formData.append("price", price);
     }
     formData.append("genre", genre);
 
@@ -394,11 +397,11 @@ export default function Upload() {
 
       if (response.ok) {
         setMessage("ファイルのアップロードに成功しました。");
-        setSelectedFile(null);
-        setPreviewUrl(null);
-        if (fileInputRef.current) {
-          fileInputRef.current.value = "";
-        }
+        setIsExifOpen(false);
+
+        setTimeout(() => {
+          navigate("/home");
+        }, 300);
       } else {
         setMessage("ファイルのアップロードに失敗しました。");
       }
@@ -501,67 +504,91 @@ export default function Upload() {
       <Dialog open={isExifOpen} onOpenChange={setIsExifOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>EXIF情報</DialogTitle>
+            <DialogTitle>画像の詳細を追加</DialogTitle>
           </DialogHeader>
-          {exifError ? (
-            <p className="text-sm text-red-500 mb-2">{exifError}</p>
-          ) : null}
-          {exifInfo ? (
-            <ul className="text-sm space-y-1">
-              {Object.entries(exifInfo).map(([key, value]) => (
-                <li key={key} className="flex justify-between gap-4">
-                  <span className="text-muted-foreground">{key}</span>
-                  <span className="font-mono break-all">{String(value)}</span>
-                </li>
-              ))}
-            </ul>
-          ) : !exifError ? (
-            <p className="text-sm text-muted-foreground">
-              情報はありませんでした。
-            </p>
-          ) : null}
-          <div className="mt-4">
-            <label className="block text-sm mb-1">この画像のジャンル</label>
-            <select
-              value={genre}
-              onChange={(e) => setGenre(e.target.value)}
-              className="w-full border rounded-sm p-2 text-sm"
-            >
-              <option value="N">なし</option>
-              <option value="A">アクティビティ</option>
-              <option value="S">景色</option>
-              <option value="G">食事</option>
-            </select>
-            <p>※AIが判断した結果が表示されています。修正が可能です。</p>
-          </div>
           {isQualityBad ? (
-            <>
-              この画像は品質基準を満たしていないため投稿できません。
-              <br />
-              詳しくは投稿ガイドをご確認ください。
-            </>
+            <div className="space-y-4">
+              <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+                <p className="font-semibold mb-1">この画像は投稿できません</p>
+                <p>
+                  画像が暗い・ピントが合っていない・解像度が低いなどの理由で、
+                  品質基準を満たしていません。
+                </p>
+              </div>
+              <p className="text-sm text-gray-700">
+                詳しくは
+                <a href="/guide/post" className="text-blue-600 underline ml-1">
+                  投稿ガイド
+                </a>
+                をご確認ください。
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsExifOpen(false);
+                  setSelectedFile(null);
+                  setPreviewUrl(null);
+                  setAiResult(null);
+                }}
+                className="w-full rounded-sm bg-gray-800 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-900 transition-colors"
+              >
+                別の画像を選ぶ
+              </button>
+            </div>
           ) : (
             <>
-              この画像はアップロードできます
+              <div className="rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800 mb-3">
+                <p className="font-semibold">この画像はアップロードできます</p>
+                <p>ジャンルと価格を入力してください。</p>
+              </div>
+              <div className="mt-4">
+                <label className="block text-sm mb-1">この画像のジャンル</label>
+                <select
+                  value={genre}
+                  onChange={(e) => setGenre(e.target.value)}
+                  className="w-full border rounded-sm p-2 text-sm"
+                >
+                  <option value="N">なし</option>
+                  <option value="A">アクティビティ</option>
+                  <option value="S">景色</option>
+                  <option value="G">食事</option>
+                </select>
+              </div>
+              <div className="mt-4">
+                <label className="block text-sm font-medium mb-1">予算</label>
+                <p className="text-xs text-gray-600 mb-2">
+                  いくらぐらいかかりましたか?
+                </p>
+                <div className="flex items-center rounded-sm border p-2">
+                  <span className="mr-1 text-gray-700 text-sm">¥</span>
+                  <input
+                    type="number"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    className="w-full outline-none text-sm"
+                    placeholder="1000"
+                  />
+                </div>
+              </div>
               <br />
+              <button
+                type="button"
+                onClick={handleSubmit}
+                disabled={isUploading || isQualityBad}
+                className={`w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-sm transition-colors duration-200 ${
+                  isUploading || isQualityBad
+                    ? "opacity-50 cursor-not-allowed hover:bg-blue-600"
+                    : ""
+                }`}
+              >
+                {isQualityBad
+                  ? "アップロード不可"
+                  : isUploading
+                    ? "アップロード中..."
+                    : "アップロード"}
+              </button>
             </>
           )}
-          <button
-            type="button"
-            onClick={handleSubmit}
-            disabled={isUploading || isQualityBad}
-            className={`w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-sm transition-colors duration-200 ${
-              isUploading || isQualityBad
-                ? "opacity-50 cursor-not-allowed hover:bg-blue-600"
-                : ""
-            }`}
-          >
-            {isQualityBad
-              ? "アップロード不可"
-              : isUploading
-                ? "アップロード中..."
-                : "アップロード"}
-          </button>
         </DialogContent>
       </Dialog>
     </div>
