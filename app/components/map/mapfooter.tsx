@@ -8,7 +8,7 @@ import {
   DrawerTrigger,
 } from "~/components/ui/drawer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import { CarFront, Footprints, X, MapPin } from "lucide-react"; 
+import { CarFront, Footprints, X, MapPin } from "lucide-react";
 type TravelMode = "car" | "walk" | "spot";
 
 interface DrawerDemoProps {
@@ -41,12 +41,12 @@ export function DrawerDemo({
   const displayPlace = place || "お店のpin(仮)";
 
   return (
-  <Drawer open={open} onOpenChange={onOpenChange}>
-    <DrawerTrigger asChild>
-    <Button
-      variant="outline"
+    <Drawer open={open} onOpenChange={onOpenChange}>
+      <DrawerTrigger asChild>
+        <Button
+          variant="outline"
           className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 shadow-xl rounded-full px-6 max-w-[90vw] truncate"
-    >
+        >
           {displayPlace}
         </Button>
       </DrawerTrigger>
@@ -63,9 +63,9 @@ export function DrawerDemo({
           </Button>
         </div>
 
-        <Tabs 
-            value={currentTab} 
-            onValueChange={(value) => onTabChange(value as TravelMode)}
+        <Tabs
+          value={currentTab}
+          onValueChange={(value) => onTabChange(value as TravelMode)}
         >
           <TabsList className="bg-transparent w-full h-16 mt-16">
             <TabsTrigger
@@ -89,29 +89,40 @@ export function DrawerDemo({
           </TabsList>
 
           <div className="flex-1 border-b border-white"></div>
-            
-            
-            <div className="min-h-[350px]">
 
-              
-              <ContentTab value="car" distance={displayDist} duration={displayTime} />
-              <ContentTab value="walk" distance={displayDist} duration={displayTime} />
+          <div className="min-h-[350px]">
+            <ContentTab
+              value="car"
+              distance={displayDist}
+              duration={displayTime}
+            />
+            <ContentTab
+              value="walk"
+              distance={displayDist}
+              duration={displayTime}
+            />
 
-              
-              <SpotTab
-                value="spot"
-                title={spotTitle ?? ""}
-                image={spotImage ?? ""}
-              />
-            </div>
-
+            <SpotTab
+              value="spot"
+              title={spotTitle ?? ""}
+              image={spotImage ?? ""}
+            />
+          </div>
         </Tabs>
       </DrawerContent>
     </Drawer>
   );
 }
 
-function ContentTab({ value, distance, duration }: { value: string; distance: string; duration: string}) {
+function ContentTab({
+  value,
+  distance,
+  duration,
+}: {
+  value: string;
+  distance: string;
+  duration: string;
+}) {
   return (
     <TabsContent value={value}>
       <DrawerDescription asChild>
@@ -123,20 +134,19 @@ function ContentTab({ value, distance, duration }: { value: string; distance: st
               </div>
 
               <div className="flex justify-center gap-6 mt-4">
-                  <div className="flex flex-col items-center">
-                      <span className="text-sm text-white/70">時間</span>
-                      <span className="text-5xl font-bold tracking-tighter text-cyan-300">
-                        {duration}
-                      </span>
-                  </div>
-                  <div className="flex flex-col items-center">
-                      <span className="text-sm text-white/70">距離</span>
-                      <span className="text-4xl font-bold tracking-tighter text-white">
-                        {distance}
-                      </span>
-                  </div>
+                <div className="flex flex-col items-center">
+                  <span className="text-sm text-white/70">時間</span>
+                  <span className="text-5xl font-bold tracking-tighter text-cyan-300">
+                    {duration}
+                  </span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <span className="text-sm text-white/70">距離</span>
+                  <span className="text-4xl font-bold tracking-tighter text-white">
+                    {distance}
+                  </span>
+                </div>
               </div>
-
             </div>
           </div>
         </div>

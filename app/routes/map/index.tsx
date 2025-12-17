@@ -53,7 +53,6 @@ export default function MapPage() {
     },
   ];
 
-  
   useEffect(() => {
     if (!mapContainerRef.current || !token) return;
 
@@ -92,17 +91,16 @@ export default function MapPage() {
     };
   }, [token]);
 
-  
   useEffect(() => {
     if (!mapRef.current || !userLocation) return;
 
     const el = document.createElement("div");
-    el.style.width = "28px"; 
-    el.style.height = "28px"; 
+    el.style.width = "28px";
+    el.style.height = "28px";
     el.style.backgroundColor = "#1D9BF0";
     el.style.borderRadius = "50%";
-    el.style.border = "4px solid white"; 
-    el.style.boxShadow = "0 0 8px rgba(0,0,0,0.5)"; 
+    el.style.border = "4px solid white";
+    el.style.boxShadow = "0 0 8px rgba(0,0,0,0.5)";
     const marker = new mapboxgl.Marker({ element: el })
       .setLngLat(userLocation)
       .addTo(mapRef.current);
@@ -112,54 +110,53 @@ export default function MapPage() {
     };
   }, [userLocation]);
 
-  
   useEffect(() => {
-    if (!token || !userLocation || !pinLocation|| travelMode === "spot") {
-      setDistance("--- km"); 
+    if (!token || !userLocation || !pinLocation || travelMode === "spot") {
+      setDistance("--- km");
       setDuration("--- 分");
       return;
     }
 
     const fetchDistance = async () => {
-      try{
+      try {
         let mapboxProfile: string;
         if (travelMode === "car") {
-            mapboxProfile = "driving";
+          mapboxProfile = "driving";
         } else if (travelMode === "walk") {
-            mapboxProfile = "walking"; 
+          mapboxProfile = "walking";
         } else {
-            return; 
+          return;
         }
         const url = `https://api.mapbox.com/directions/v5/mapbox/${mapboxProfile}/${userLocation[0]},${userLocation[1]};${pinLocation[0]},${pinLocation[1]}?access_token=${token}`;
         console.log(`[Mapbox API] Fetching route for mode: ${mapboxProfile}`);
         const res = await fetch(url);
         const data = await res.json();
         if (data.routes && data.routes.length > 0) {
-            const route = data.routes[0];
-        const distKm = (data.routes[0].distance / 1000).toFixed(1);
-        setDistance(`${distKm} km`);
-        const totalSeconds = route.duration;
-                const totalMinutes = Math.round(totalSeconds / 60);
+          const route = data.routes[0];
+          const distKm = (data.routes[0].distance / 1000).toFixed(1);
+          setDistance(`${distKm} km`);
+          const totalSeconds = route.duration;
+          const totalMinutes = Math.round(totalSeconds / 60);
 
-                let displayDuration: string;
-                if (totalMinutes < 60) {
-                    
-                    displayDuration = `${totalMinutes} 分`;
-                } else {
-                    
-                    const hours = Math.floor(totalMinutes / 60);
-                    const minutes = totalMinutes % 60;
-                    
-                    if (minutes === 0) {
-                         displayDuration = `${hours} 時間`;
-                    } else {
-                        displayDuration = `${hours} 時間 ${minutes} 分`;
-                    }
-                }
-                
-                setDuration(displayDuration);
-                
-              console.log(`[Result] Mode: ${mapboxProfile}, Time: ${displayDuration}, Dist: ${distKm} km`);
+          let displayDuration: string;
+          if (totalMinutes < 60) {
+            displayDuration = `${totalMinutes} 分`;
+          } else {
+            const hours = Math.floor(totalMinutes / 60);
+            const minutes = totalMinutes % 60;
+
+            if (minutes === 0) {
+              displayDuration = `${hours} 時間`;
+            } else {
+              displayDuration = `${hours} 時間 ${minutes} 分`;
+            }
+          }
+
+          setDuration(displayDuration);
+
+          console.log(
+            `[Result] Mode: ${mapboxProfile}, Time: ${displayDuration}, Dist: ${distKm} km`,
+          );
         } else {
           setDistance(null);
           setDuration(null);
@@ -172,9 +169,7 @@ export default function MapPage() {
     };
     fetchDistance();
   }, [token, userLocation, pinLocation, travelMode]);
- 
 
-  
   const handlePopupClick = async (
     coordinates: [number, number],
     title: string,
