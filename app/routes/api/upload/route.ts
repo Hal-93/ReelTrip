@@ -24,6 +24,15 @@ export async function action({ request }: ActionFunctionArgs) {
     const height = formData.get("height");
     const date = formData.get("date");
     const price = formData.get("price");
+    //onst genre = formData.get("genre");
+    const quality = formData.get("quality");
+
+    if (quality === "false") {
+      return Response.json(
+        { message: "AI判定によりアップロードできません。" },
+        { status: 400 },
+      );
+    }
 
     await uploadFile(file, objectName);
 
@@ -42,6 +51,7 @@ export async function action({ request }: ActionFunctionArgs) {
         height: Number(height),
         date: String(date),
         price: price ? Number(price) : undefined,
+        //genre: genre ? String(genre) : undefined
       });
     } catch (error) {
       console.error(error);
