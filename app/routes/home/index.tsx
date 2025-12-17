@@ -128,7 +128,6 @@ export default function Home() {
         <Plus />
       </Link>
       <TaskBar />
-
     </div>
   );
 }
