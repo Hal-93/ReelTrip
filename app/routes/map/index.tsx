@@ -25,6 +25,8 @@ type MapPlace = {
   image: string;
 };
 
+type TravelMode = "car" | "walk" | "spot";
+
 export default function MapPage() {
   const { token } = useLoaderData<typeof loader>();
   const mapRef = useRef<mapboxgl.Map | null>(null);
@@ -38,7 +40,9 @@ export default function MapPage() {
   const [destinationImage, setDestinationImage] = useState<string | null>(null);
   const [pinLocation, setPinLocation] = useState<[number, number] | null>(null);
   const [distance, setDistance] = useState<string | null>(null);
+  const [duration, setDuration] = useState<string | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [travelMode, setTravelMode] = useState<TravelMode>("car");
 
   const samplePlaces: MapPlace[] = [
     {
@@ -49,7 +53,7 @@ export default function MapPage() {
     },
   ];
 
-  /* ---------------------- Map 初期化 ---------------------- */
+  
   useEffect(() => {
     if (!mapContainerRef.current || !token) return;
 
@@ -88,18 +92,17 @@ export default function MapPage() {
     };
   }, [token]);
 
-  /* ---------------------- 現在地マーカー追加（大きめ） ---------------------- */
+  
   useEffect(() => {
     if (!mapRef.current || !userLocation) return;
 
     const el = document.createElement("div");
-    el.style.width = "28px"; // 幅を大きく
-    el.style.height = "28px"; // 高さを大きく
+    el.style.width = "28px"; 
+    el.style.height = "28px"; 
     el.style.backgroundColor = "#1D9BF0";
     el.style.borderRadius = "50%";
-    el.style.border = "4px solid white"; // ボーダー太め
-    el.style.boxShadow = "0 0 8px rgba(0,0,0,0.5)"; // 影強め
-
+    el.style.border = "4px solid white"; 
+    el.style.boxShadow = "0 0 8px rgba(0,0,0,0.5)"; 
     const marker = new mapboxgl.Marker({ element: el })
       .setLngLat(userLocation)
       .addTo(mapRef.current);
@@ -109,21 +112,69 @@ export default function MapPage() {
     };
   }, [userLocation]);
 
-  /* ---------------------- ピン距離計算 ---------------------- */
+  
   useEffect(() => {
-    if (!token || !userLocation || !pinLocation) return;
+    if (!token || !userLocation || !pinLocation|| travelMode === "spot") {
+      setDistance("--- km"); 
+      setDuration("--- 分");
+      return;
+    }
 
     const fetchDistance = async () => {
-      const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${userLocation[0]},${userLocation[1]};${pinLocation[0]},${pinLocation[1]}?access_token=${token}`;
-      const res = await fetch(url);
-      const data = await res.json();
-      const distKm = (data.routes[0].distance / 1000).toFixed(1);
-      setDistance(`${distKm} km`);
+      try{
+        let mapboxProfile: string;
+        if (travelMode === "car") {
+            mapboxProfile = "driving";
+        } else if (travelMode === "walk") {
+            mapboxProfile = "walking"; 
+        } else {
+            return; 
+        }
+        const url = `https://api.mapbox.com/directions/v5/mapbox/${mapboxProfile}/${userLocation[0]},${userLocation[1]};${pinLocation[0]},${pinLocation[1]}?access_token=${token}`;
+        console.log(`[Mapbox API] Fetching route for mode: ${mapboxProfile}`);
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data.routes && data.routes.length > 0) {
+            const route = data.routes[0];
+        const distKm = (data.routes[0].distance / 1000).toFixed(1);
+        setDistance(`${distKm} km`);
+        const totalSeconds = route.duration;
+                const totalMinutes = Math.round(totalSeconds / 60);
+
+                let displayDuration: string;
+                if (totalMinutes < 60) {
+                    
+                    displayDuration = `${totalMinutes} 分`;
+                } else {
+                    
+                    const hours = Math.floor(totalMinutes / 60);
+                    const minutes = totalMinutes % 60;
+                    
+                    if (minutes === 0) {
+                         displayDuration = `${hours} 時間`;
+                    } else {
+                        displayDuration = `${hours} 時間 ${minutes} 分`;
+                    }
+                }
+                
+                setDuration(displayDuration);
+                
+              console.log(`[Result] Mode: ${mapboxProfile}, Time: ${displayDuration}, Dist: ${distKm} km`);
+        } else {
+          setDistance(null);
+          setDuration(null);
+        }
+      } catch (error) {
+        console.error("距離取得エラー:", error);
+        setDistance(null);
+        setDuration(null);
+      }
     };
     fetchDistance();
-  }, [userLocation, pinLocation]);
+  }, [token, userLocation, pinLocation, travelMode]);
+ 
 
-  /* ---------------------- ポップアップクリック ---------------------- */
+  
   const handlePopupClick = async (
     coordinates: [number, number],
     title: string,
@@ -139,6 +190,7 @@ export default function MapPage() {
     const placeName = d.features?.[0]?.place_name ?? title;
     setDestinationPlace(placeName);
 
+    setTravelMode("car");
     setIsDrawerOpen(true);
   };
 
@@ -166,11 +218,14 @@ export default function MapPage() {
       {pinLocation && (
         <DrawerDemo
           distance={distance}
+          duration={duration}
           place={destinationPlace}
           spotTitle={destinationPlace}
           spotImage={destinationImage}
           open={isDrawerOpen}
           onOpenChange={setIsDrawerOpen}
+          onTabChange={setTravelMode}
+          currentTab={travelMode}
         />
       )}
     </div>
