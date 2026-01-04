@@ -5,6 +5,83 @@ import mapboxgl from "mapbox-gl";
 
 import { DrawerDemo } from "~/components/map/mapfooter";
 import { MapHeader } from "~/components/map/mapheader";
+
+
+type MarkerWithPopupProps = {
+  map: mapboxgl.Map | null;
+  coordinates: [number, number];
+  title: string;
+  image: string;
+  onMarkerClick: (
+    coordinates: [number, number],
+    title: string,
+    image: string,
+  ) => void;
+};
+
+export function MarkerWithPopup({
+  map,
+  coordinates,
+  title,
+  image,
+  onMarkerClick,
+}: MarkerWithPopupProps) {
+  useEffect(() => {
+    if (!map) return;
+
+    const popupContainer = document.createElement("div");
+    popupContainer.className = "popup-content";
+    popupContainer.innerHTML = `
+      <h4 style="margin:0 0 4px 0; font-size:14px;">${title}</h4>
+      <img src="${image}" style="
+        width:100%;
+        max-width:250px; 
+        height:auto;
+        border-radius:6px;
+        display:block;
+        margin:0;
+      " />
+    `;
+
+    const popup = new mapboxgl.Popup({
+      closeButton: false,
+      closeOnClick: false,
+      offset: 25,
+    })
+      .setLngLat(coordinates)
+      .setDOMContent(popupContainer)
+      .addTo(map);
+
+    const marker = new mapboxgl.Marker({ color: "#ff3333" })
+      .setLngLat(coordinates)
+      .addTo(map);
+
+    const handleClick = () => {
+      map.flyTo({ center: coordinates, zoom: 16, duration: 800 });
+      onMarkerClick(coordinates, title, image);
+    };
+
+    marker.getElement().addEventListener("click", handleClick);
+
+    const handleZoom = () => {
+      const zoom = map.getZoom();
+      const scale = Math.min(1, 0.7 + (zoom - 14) * 0.05);
+      const img = popupContainer.querySelector("img") as HTMLElement;
+      if (img) img.style.width = `${scale * 100}%`;
+    };
+
+    map.on("zoom", handleZoom);
+
+    return () => {
+      marker.remove();
+      popup.remove();
+      map.off("zoom", handleZoom);
+      marker.getElement().removeEventListener("click", handleClick);
+    };
+  }, [map, coordinates, title, image, onMarkerClick]);
+
+  return null;
+}
 import { MarkerWithPopup } from "~/components/map/MarkerWithPopup";
 
 export const links = () => [
@@ -32,6 +109,7 @@ export default function MapPage() {
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
 
+  const [pinLocation, setPinLocation] = useState<[number, number] | null>(null);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(
     null,
   );
@@ -53,6 +131,44 @@ export default function MapPage() {
     },
   ];
 
+  const fetchDistance = async (
+    start: [number, number],
+    end: [number, number],
+  ) => {
+    if (!token) return;
+
+    const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${start[0]},${start[1]};${end[0]},${end[1]}?access_token=${token}`;
+
+    try {
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data.routes && data.routes.length > 0) {
+        const distKm = (data.routes[0].distance / 1000).toFixed(1);
+        setDistance(`${distKm} km`);
+      }
+    } catch (err) {
+      console.error("距離取得エラー:", err);
+      setDistance(null);
+    }
+  };
+
+  const handleMarkerClick = (
+    coordinates: [number, number],
+    title: string,
+    image: string,
+  ) => {
+    if (!userLocation) {
+      alert("現在地が取得できていません。");
+      return;
+    }
+
+    setPinLocation(coordinates);
+    setDestinationPlace(title);
+    setDestinationImage(image);
+    setIsDrawerOpen(true);
+  };
+
+  /* -------------------------- Map 初期化 -------------------------- */
   useEffect(() => {
     if (!mapContainerRef.current || !token) return;
 
@@ -72,6 +188,18 @@ export default function MapPage() {
         const { longitude, latitude } = pos.coords;
         setUserLocation([longitude, latitude]);
 
+        try {
+          const res = await fetch(
+            `https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${token}`,
+          );
+          const data = await res.json();
+          setCurrentPlace(
+            data.features?.[0]?.place_name ?? "住所取得できません",
+          );
+        } catch (error) {
+          console.error("現在地住所取得失敗:", error);
+          setCurrentPlace("住所取得できません");
+        }
         const r = await fetch(
           `https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${token}`,
         );
@@ -83,6 +211,8 @@ export default function MapPage() {
           zoom: 14,
         });
       },
+      (error) => console.error("現在地取得失敗:", error),
+      { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 },
       () => console.error("位置情報拒否"),
     );
 
