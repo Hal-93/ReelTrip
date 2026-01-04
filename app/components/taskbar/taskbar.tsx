@@ -7,6 +7,7 @@ import {
   faHeart,
   faCamera,
   faUser,
+  faFilm,
 } from "@fortawesome/free-solid-svg-icons";
 
 const TaskBar: React.FC = () => {
@@ -14,6 +15,7 @@ const TaskBar: React.FC = () => {
   const navigate = useNavigate();
 
   const items = [
+    { id: "reel", label: "リール", icon: <FontAwesomeIcon icon={faFilm} /> },
     { id: "home", label: "ホーム", icon: <FontAwesomeIcon icon={faHouse} /> },
     { id: "like", label: "いいね", icon: <FontAwesomeIcon icon={faHeart} /> },
     { id: "post", label: "投稿", icon: <FontAwesomeIcon icon={faCamera} /> },
@@ -25,7 +27,7 @@ const TaskBar: React.FC = () => {
   ];
 
   return (
-    <div className="fixed bottom-4 w-fit mx-auto inset-x-0 p-3 bg-gray-200/90 shadow-xl rounded-full z-50 backdrop-blur-md text-gray-900">
+    <div className="fixed bottom-4 w-fit mx-auto inset-x-0 py-3 px-10 bg-gray-200/90 shadow-xl rounded-full z-50 backdrop-blur-md text-gray-900">
       <div className="flex justify-center gap-x-8 w-full">
         {items.map((item) => (
           <TaskBarItem
@@ -35,8 +37,10 @@ const TaskBar: React.FC = () => {
             isActive={activeTab === item.id}
             onClick={() => {
               setActiveTab(item.id);
-              if (item.id === "post") navigate("/post");
-              else if (item.id === "home") navigate("/");
+              if (item.id === "home") navigate("/home");
+              else if (item.id === "like") navigate("/favorites");
+              else if (item.id === "reel") navigate("/reels");
+              else if (item.id === "post") navigate("/upload");
               else if (item.id === "mypage") navigate("/mypage");
             }}
           />
