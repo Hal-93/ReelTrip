@@ -1,15 +1,18 @@
-import { useLoaderData, redirect } from "react-router";
+import { useLoaderData, redirect, useSearchParams } from "react-router";
 import { getUser } from "~/lib/models/auth.server";
 import type { LoaderFunctionArgs } from "react-router";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Sheet, SheetContent, SheetTrigger } from "~/components/ui/sheet";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogTrigger } from "~/components/ui/dialog";
 import { UserSidebar } from "~/components/basic/usermenu";
 import { getFilesByUser } from "~/lib/models/file.server";
 import { Link } from "react-router";
 import { Plus } from "lucide-react";
+import { toast } from "sonner";
+import { Toaster } from "sonner";
+import TaskBar from "~/components/taskbar/taskbar";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await getUser(request);
@@ -28,8 +31,17 @@ export default function Home() {
     null,
   );
 
+  const [searchParams] = useSearchParams();
+  useEffect(() => {
+    if (searchParams.get("uploaded") === "1") {
+      toast("ポイントを獲得しました！");
+    }
+  }, [searchParams]);
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <Toaster />
+      <TaskBar/>
       <header className="flex items-center justify-between px-4 py-3 border-b lg:hidden">
         <img src="/icon.png" width={32} height={32} />
         <Sheet>

@@ -6,6 +6,7 @@ import mapboxgl from "mapbox-gl";
 import { DrawerDemo } from "~/components/map/mapfooter";
 import { MapHeader } from "~/components/map/mapheader";
 
+
 type MarkerWithPopupProps = {
   map: mapboxgl.Map | null;
   coordinates: [number, number];
@@ -81,6 +82,7 @@ export function MarkerWithPopup({
 
   return null;
 }
+import { MarkerWithPopup } from "~/components/map/MarkerWithPopup";
 
 export const links = () => [
   {
@@ -100,8 +102,11 @@ type MapPlace = {
   image: string;
 };
 
+type TravelMode = "car" | "walk" | "spot";
+
 export default function MapPage() {
   const { token } = useLoaderData<typeof loader>();
+  const mapRef = useRef<mapboxgl.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
 
   const [pinLocation, setPinLocation] = useState<[number, number] | null>(null);
@@ -111,12 +116,11 @@ export default function MapPage() {
   const [currentPlace, setCurrentPlace] = useState<string | null>(null);
   const [destinationPlace, setDestinationPlace] = useState<string | null>(null);
   const [destinationImage, setDestinationImage] = useState<string | null>(null);
+  const [pinLocation, setPinLocation] = useState<[number, number] | null>(null);
   const [distance, setDistance] = useState<string | null>(null);
+  const [duration, setDuration] = useState<string | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-
-  const mapRef = useRef<mapboxgl.Map | null>(null);
-  const userMarkerRef = useRef<mapboxgl.Marker | null>(null);
-  const pinMarkerRef = useRef<mapboxgl.Marker | null>(null);
+  const [travelMode, setTravelMode] = useState<TravelMode>("car");
 
   const samplePlaces: MapPlace[] = [
     {
@@ -166,21 +170,22 @@ export default function MapPage() {
 
   /* -------------------------- Map 初期化 -------------------------- */
   useEffect(() => {
-    if (!mapContainerRef.current || !token || mapRef.current) return;
+    if (!mapContainerRef.current || !token) return;
 
     mapboxgl.accessToken = token;
-    mapRef.current = new mapboxgl.Map({
+
+    const map = new mapboxgl.Map({
       container: mapContainerRef.current,
       style: "mapbox://styles/so03jp/cmacq6ily00l501rf5j67an3w",
       center: [139.720204, 35.783899],
       zoom: 14,
     });
 
-    mapRef.current.addControl(new mapboxgl.NavigationControl(), "top-right");
+    mapRef.current = map;
 
     navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { longitude, latitude } = position.coords;
+      async (pos) => {
+        const { longitude, latitude } = pos.coords;
         setUserLocation([longitude, latitude]);
 
         try {
@@ -195,102 +200,157 @@ export default function MapPage() {
           console.error("現在地住所取得失敗:", error);
           setCurrentPlace("住所取得できません");
         }
+        const r = await fetch(
+          `https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${token}`,
+        );
+        const d = await r.json();
+        setCurrentPlace(d.features?.[0]?.place_name ?? "現在地");
 
-        mapRef.current?.flyTo({ center: [longitude, latitude], zoom: 14 });
+        map.flyTo({
+          center: [longitude, latitude],
+          zoom: 14,
+        });
       },
       (error) => console.error("現在地取得失敗:", error),
       { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 },
+      () => console.error("位置情報拒否"),
     );
 
-    /* クリックでピンを置く */
-    mapRef.current.on("click", (e) => {
-      const newLocation: [number, number] = [e.lngLat.lng, e.lngLat.lat];
-      setPinLocation(newLocation);
-      setDestinationPlace("指定した場所");
-      setDestinationImage(null);
-      setIsDrawerOpen(true);
-    });
-
     return () => {
-      userMarkerRef.current?.remove();
-      pinMarkerRef.current?.remove();
-      mapRef.current?.remove();
+      map.remove();
     };
   }, [token]);
 
-  /* -------------------------- 距離計算 -------------------------- */
-  useEffect(() => {
-    if (userLocation && pinLocation) {
-      fetchDistance(userLocation, pinLocation);
-    }
-  }, [userLocation, pinLocation]);
-
-  /* -------------------------- 現在地マーカー -------------------------- */
   useEffect(() => {
     if (!mapRef.current || !userLocation) return;
 
-    if (!userMarkerRef.current) {
-      const el = document.createElement("div");
-      el.className = "user-location-marker";
-      userMarkerRef.current = new mapboxgl.Marker({ element: el })
-        .setLngLat(userLocation)
-        .addTo(mapRef.current);
-    } else {
-      userMarkerRef.current.setLngLat(userLocation);
-    }
+    const el = document.createElement("div");
+    el.style.width = "28px";
+    el.style.height = "28px";
+    el.style.backgroundColor = "#1D9BF0";
+    el.style.borderRadius = "50%";
+    el.style.border = "4px solid white";
+    el.style.boxShadow = "0 0 8px rgba(0,0,0,0.5)";
+    const marker = new mapboxgl.Marker({ element: el })
+      .setLngLat(userLocation)
+      .addTo(mapRef.current);
+
+    return () => {
+      marker.remove();
+    };
   }, [userLocation]);
 
-  /* -------------------------- ピンマーカー -------------------------- */
   useEffect(() => {
-    if (!mapRef.current) return;
-
-    if (pinLocation) {
-      if (!pinMarkerRef.current) {
-        pinMarkerRef.current = new mapboxgl.Marker({ color: "#0077ff" })
-          .setLngLat(pinLocation)
-          .addTo(mapRef.current);
-      } else {
-        pinMarkerRef.current.setLngLat(pinLocation);
-      }
-
-      mapRef.current.flyTo({ center: pinLocation, zoom: 15, duration: 800 });
-    } else if (pinMarkerRef.current) {
-      pinMarkerRef.current.remove();
-      pinMarkerRef.current = null;
+    if (!token || !userLocation || !pinLocation || travelMode === "spot") {
+      setDistance("--- km");
+      setDuration("--- 分");
+      return;
     }
-  }, [pinLocation]);
+
+    const fetchDistance = async () => {
+      try {
+        let mapboxProfile: string;
+        if (travelMode === "car") {
+          mapboxProfile = "driving";
+        } else if (travelMode === "walk") {
+          mapboxProfile = "walking";
+        } else {
+          return;
+        }
+        const url = `https://api.mapbox.com/directions/v5/mapbox/${mapboxProfile}/${userLocation[0]},${userLocation[1]};${pinLocation[0]},${pinLocation[1]}?access_token=${token}`;
+        console.log(`[Mapbox API] Fetching route for mode: ${mapboxProfile}`);
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data.routes && data.routes.length > 0) {
+          const route = data.routes[0];
+          const distKm = (data.routes[0].distance / 1000).toFixed(1);
+          setDistance(`${distKm} km`);
+          const totalSeconds = route.duration;
+          const totalMinutes = Math.round(totalSeconds / 60);
+
+          let displayDuration: string;
+          if (totalMinutes < 60) {
+            displayDuration = `${totalMinutes} 分`;
+          } else {
+            const hours = Math.floor(totalMinutes / 60);
+            const minutes = totalMinutes % 60;
+
+            if (minutes === 0) {
+              displayDuration = `${hours} 時間`;
+            } else {
+              displayDuration = `${hours} 時間 ${minutes} 分`;
+            }
+          }
+
+          setDuration(displayDuration);
+
+          console.log(
+            `[Result] Mode: ${mapboxProfile}, Time: ${displayDuration}, Dist: ${distKm} km`,
+          );
+        } else {
+          setDistance(null);
+          setDuration(null);
+        }
+      } catch (error) {
+        console.error("距離取得エラー:", error);
+        setDistance(null);
+        setDuration(null);
+      }
+    };
+    fetchDistance();
+  }, [token, userLocation, pinLocation, travelMode]);
+
+  const handlePopupClick = async (
+    coordinates: [number, number],
+    title: string,
+    image: string,
+  ) => {
+    setPinLocation(coordinates);
+    setDestinationImage(image);
+
+    const r = await fetch(
+      `https://api.mapbox.com/geocoding/v5/mapbox.places/${coordinates[0]},${coordinates[1]}.json?access_token=${token}`,
+    );
+    const d = await r.json();
+    const placeName = d.features?.[0]?.place_name ?? title;
+    setDestinationPlace(placeName);
+
+    setTravelMode("car");
+    setIsDrawerOpen(true);
+  };
 
   return (
-    <div style={{ height: "100vh", display: "flex", flexDirection: "column" }}>
-      <div style={{ position: "relative", height: "100%", width: "100%" }}>
-        <div ref={mapContainerRef} style={{ height: "100%", width: "100%" }} />
+    <div style={{ height: "100vh", width: "100vw", position: "relative" }}>
+      <MapHeader
+        currentPlace={currentPlace ?? undefined}
+        destinationPlace={destinationPlace ?? undefined}
+      />
 
-        <MapHeader
-          currentPlace={currentPlace ?? undefined}
-          destinationPlace={destinationPlace ?? undefined}
-        />
+      <div ref={mapContainerRef} style={{ width: "100%", height: "100%" }} />
 
-        {mapRef.current &&
-          samplePlaces.map((place) => (
-            <MarkerWithPopup
-              key={place.id}
-              map={mapRef.current}
-              coordinates={place.coordinates}
-              title={place.title}
-              image={place.image}
-              onMarkerClick={handleMarkerClick}
-            />
-          ))}
-      </div>
+      {mapRef.current &&
+        samplePlaces.map((place) => (
+          <MarkerWithPopup
+            key={place.id}
+            map={mapRef.current}
+            coordinates={place.coordinates}
+            title={place.title}
+            image={place.image}
+            onPopupClick={handlePopupClick}
+          />
+        ))}
 
       {pinLocation && (
         <DrawerDemo
           distance={distance}
+          duration={duration}
           place={destinationPlace}
           spotTitle={destinationPlace}
           spotImage={destinationImage}
           open={isDrawerOpen}
           onOpenChange={setIsDrawerOpen}
+          onTabChange={setTravelMode}
+          currentTab={travelMode}
         />
       )}
     </div>
