@@ -8,8 +8,8 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogTrigger } from "~/components/ui/dialog";
 import { UserSidebar } from "~/components/basic/usermenu";
 import { getFilesByUser } from "~/lib/models/file.server";
-import { Link } from "react-router";
-import { Plus } from "lucide-react";
+// import { Link } from "react-router";
+// import { Plus } from "lucide-react";
 import TaskBar from "~/components/taskbar/taskbar";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -121,12 +121,12 @@ export default function Home() {
           </Card>
         </div>
       </main>
-      <Link
+      {/* <Link
         to="/upload"
         className="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg transition z-50"
       >
         <Plus />
-      </Link>
+      </Link> */}
       <TaskBar />
     </div>
   );

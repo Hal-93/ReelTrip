@@ -7,6 +7,7 @@ export async function loader() {
 import { useNavigate } from "react-router";
 import { useState } from "react";
 import { useLoaderData } from "react-router";
+import TaskBar from "~/components/taskbar/taskbar";
 
 export default function ReelsPage() {
   const navigate = useNavigate();
@@ -58,6 +59,8 @@ export default function ReelsPage() {
           <span className="text-lg font-semibold">生成中...</span>
         </div>
       )}
+
+      <TaskBar/>
     </div>
   );
 }

@@ -1,5 +1,7 @@
 "use client";
 
+import TaskBar from "~/components/taskbar/taskbar";
+
 export default function Favorites() {
   const likedPosts = [
     {
@@ -54,6 +56,7 @@ export default function Favorites() {
           ))}
         </div>
       </div>
+      <TaskBar />
     </>
   );
 }
