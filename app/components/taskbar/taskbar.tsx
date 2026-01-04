@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import TaskBarItem from "./taskbar-item";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -6,19 +7,22 @@ import {
   faHeart,
   faCamera,
   faUser,
+  faPlayCircle,
 } from "@fortawesome/free-solid-svg-icons";
 
 const TaskBar: React.FC = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("home");
 
   const items = [
-    { id: "home", label: "ホーム", icon: <FontAwesomeIcon icon={faHouse} /> },
-    { id: "like", label: "いいね", icon: <FontAwesomeIcon icon={faHeart} /> },
-    { id: "post", label: "投稿", icon: <FontAwesomeIcon icon={faCamera} /> },
+    { id: "home", label: "ホーム", path: "/home", icon: <FontAwesomeIcon icon={faHouse} /> },
+    { id: "like", label: "いいね", path: "/like", icon: <FontAwesomeIcon icon={faHeart} /> },
+    { id: "post", label: "投稿", path: "/upload", icon: <FontAwesomeIcon icon={faCamera} /> },
     {
       id: "mypage",
-      label: "マイページ",
-      icon: <FontAwesomeIcon icon={faUser} />,
+      label: "リール探索",
+      path: "/reels",
+      icon: <FontAwesomeIcon icon={faPlayCircle} />,
     },
   ];
 
@@ -31,7 +35,10 @@ const TaskBar: React.FC = () => {
             label={item.label}
             icon={item.icon}
             isActive={activeTab === item.id}
-            onClick={() => setActiveTab(item.id)}
+            onClick={() => {
+              setActiveTab(item.id);
+              navigate(item.path);
+            }}
           />
         ))}
       </div>

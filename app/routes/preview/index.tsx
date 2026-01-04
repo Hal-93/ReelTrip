@@ -1,4 +1,5 @@
 import { useNavigate, useLocation } from "react-router";
+import TaskBar from "~/components/taskbar/taskbar";
 import { Button } from "~/components/ui/button";
 
 export default function ReelsPreviewPage() {
@@ -6,8 +7,31 @@ export default function ReelsPreviewPage() {
   const location = useLocation();
   const videoUrl = location.state?.video_url ?? null;
 
+  const handleToMap = () => {
+    navigate("/map", {
+      state: { from: "reel" },
+    });
+  };
+
   return (
+    <>
+    <TaskBar/>
     <div className="relative w-full h-screen bg-black text-white overflow-hidden">
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex rounded-full bg-black/60 backdrop-blur">
+        <Button
+          variant="ghost"
+          className="rounded-full px-4 text-white"
+        >
+          リール
+        </Button>
+        <Button
+          variant="ghost"
+          className="rounded-full px-4 text-white/70"
+          onClick={handleToMap}
+        >
+          マップ
+        </Button>
+      </div>
       {videoUrl ? (
         <video
           key={videoUrl}
@@ -44,29 +68,10 @@ export default function ReelsPreviewPage() {
       <div className="absolute bottom-24 left-4 max-w-[70%]">
         <p className="font-bold text-lg">@あなた</p>
         <p className="text-sm text-gray-200 mt-1">
-          ReelTrip が自動生成したリール動画です。
-          <br />
-          気に入ったら投稿してみよう！
+          キャプションがここに入ります
         </p>
       </div>
-
-      <div className="absolute bottom-6 w-full flex justify-center gap-4 px-4">
-        <Button
-          className="bg-white/20 hover:bg-white/30 text-white px-6"
-          onClick={() => navigate("/reels")}
-        >
-          再生成する
-        </Button>
-
-        <Button
-          className="bg-blue-500 hover:bg-blue-600 px-6"
-          onClick={() => {
-            navigate("/reels");
-          }}
-        >
-          このリールで投稿
-        </Button>
-      </div>
     </div>
+    </>
   );
 }

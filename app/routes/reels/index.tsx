@@ -1,17 +1,37 @@
 export async function loader() {
-  const res = await fetch("http://127.0.0.1:8000/list-objects");
-  const files = await res.json();
-  return { files };
+  return { files: [] };
 }
 
 import { useNavigate } from "react-router";
-import { useState } from "react";
-import { useLoaderData } from "react-router";
+import { useState, useEffect } from "react";
 
 export default function ReelsPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const { files } = useLoaderData() as { files: string[] };
+  const [files, setFiles] = useState<string[]>([]);
+
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        try {
+          const res = await fetch(
+            `api/group?lat=${latitude}&lng=${longitude}`
+          );
+          const data = await res.json();
+          const group = Array.isArray(data) ? data : data.group;
+          if (Array.isArray(group)) {
+            setFiles(group.map((g: { key: string }) => g.key));
+          }
+        } catch {
+          // fail silently
+        }
+      },
+      () => {
+        // fail silently
+      }
+    );
+  }, []);
 
   return (
     <div
@@ -22,10 +42,12 @@ export default function ReelsPage() {
 
       <button
         onClick={async () => {
+          if (files.length === 0) {
+            return;
+          }
           setLoading(true);
 
-          const shuffled = [...files].sort(() => Math.random() - 0.5);
-          const selected = shuffled.slice(0, 3);
+          const selected = files;
 
           const res = await fetch("http://127.0.0.1:8000/make-video", {
             method: "POST",
