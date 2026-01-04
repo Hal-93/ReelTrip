@@ -13,10 +13,10 @@ export function MapHeader({ currentPlace, destinationPlace }: MapHeaderProps) {
       className="flex items-center pt-2"
       style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 10 }}
     >
-      <ArrowLeft 
+      <ArrowLeft
         className="text-[#004f83] h-8 w-1/12 cursor-pointer"
         onClick={() => navigate(-1)}
-        />
+      />
       <div className="bg-[#004f83d3] bg-opacity-80 p-4 rounded-xl shadow-lg w-10/12">
         <div className="flex items-center space-x-3">
           <div className="flex-1 flex flex-col space-y-2">
