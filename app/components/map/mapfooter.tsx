@@ -42,7 +42,7 @@ export function DrawerDemo({
         </Button>
       </DrawerTrigger>
 
-      <DrawerContent className="mx-auto w-full bg-[#004f83cc]">
+      <DrawerContent className="mx-auto w-full bg-[#004f83d3]">
         <div className="absolute top-4 right-4 z-10">
           <Button
             variant="ghost"
