@@ -5,6 +5,7 @@ import mapboxgl from "mapbox-gl";
 
 import { DrawerDemo } from "~/components/map/mapfooter";
 import { MapHeader } from "~/components/map/mapheader";
+import TaskBar from "~/components/taskbar/taskbar";
 
 type MarkerWithPopupProps = {
   map: mapboxgl.Map | null;
@@ -293,6 +294,7 @@ export default function MapPage() {
           onOpenChange={setIsDrawerOpen}
         />
       )}
+    <TaskBar />  
     </div>
   );
 }
