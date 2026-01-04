@@ -10,7 +10,6 @@ export default [
   { path: "preferences", file: "routes/preferences/index.tsx" },
   { path: "settings", file: "routes/settings/index.tsx" },
   { path: "user-settings", file: "routes/user-settings/index.tsx" },
-  { path: "post", file: "routes/post/index.tsx" },
   { path: "map", file: "routes/map/index.tsx" },
   { path: "home", file: "routes/home/index.tsx" },
   { path: "upload", file: "routes/upload/index.tsx" },
@@ -18,6 +17,7 @@ export default [
   { path: "use-points", file: "routes/use-points/index.tsx" },
   { path: "guide", file: "routes/guide/index.tsx" },
   { path: "reels/preview", file: "routes/preview/index.tsx" },
+  { path: "test", file: "routes/test/index.tsx" },
 
   //API関連
   { path: "api/auth/session", file: "routes/api/auth/session/route.ts" },
@@ -25,4 +25,5 @@ export default [
   { path: "api/upload", file: "routes/api/upload/route.ts" },
   { path: "api/ai", file: "routes/api/ai/route.ts" },
   { path: "api/files/:objectName", file: "routes/api/files/route.ts" },
+  { path: "api/group", file: "routes/api/group/route.ts" },
 ] satisfies RouteConfig;

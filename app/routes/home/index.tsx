@@ -12,6 +12,7 @@ import { Link } from "react-router";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import { Toaster } from "sonner";
+import TaskBar from "~/components/taskbar/taskbar";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await getUser(request);
@@ -40,6 +41,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Toaster />
+      <TaskBar/>
       <header className="flex items-center justify-between px-4 py-3 border-b lg:hidden">
         <img src="/icon.png" width={32} height={32} />
         <Sheet>

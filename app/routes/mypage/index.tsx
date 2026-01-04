@@ -3,9 +3,12 @@
 
 import type { FC } from "react";
 import { Pencil, Plus, User } from "lucide-react";
+import TaskBar from "~/components/taskbar/taskbar";
 
 const MyPage: FC = () => {
   return (
+    <>
+    <TaskBar/>
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-cyan-700 to-blue-900">
       <div className="flex flex-col items-center pt-12">
         <div className="relative">
@@ -36,6 +39,7 @@ const MyPage: FC = () => {
         ))}
       </div>
     </div>
+    </>
   );
 };
 

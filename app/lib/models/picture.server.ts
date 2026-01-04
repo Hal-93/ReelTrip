@@ -75,3 +75,85 @@ export async function deletePicture(id: string) {
     throw new Error("エラー");
   }
 }
+
+
+function distanceKm(lat1: number, lng1: number, lat2: number, lng2: number) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) *
+      Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLng / 2) * Math.sin(dLng / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+function isWithinThreshold(
+  lat1: number,
+  lng1: number,
+  lat2: number,
+  lng2: number,
+  thresholdKm = 5
+) {
+  return distanceKm(lat1, lng1, lat2, lng2) <= thresholdKm;
+}
+
+export async function groupPicturesByLocation() {
+  const pictures = await prisma.picture.findMany({
+    include: {
+      file: true,
+    },
+  });
+
+  const imagesWithGPS = pictures.map(p => ({
+    key: p.file.objectName,
+    lat: p.lat,
+    lng: p.lng,
+  }));
+
+  const groups: { key: string; lat: number; lng: number }[][] = [];
+
+  for (const image of imagesWithGPS) {
+    let addedToGroup = false;
+
+    for (const group of groups) {
+      const refImage = group[0];
+      if (isWithinThreshold(image.lat, image.lng, refImage.lat, refImage.lng)) {
+        group.push(image);
+        addedToGroup = true;
+        break;
+      }
+    }
+
+    if (!addedToGroup) {
+      groups.push([image]);
+    }
+  }
+
+  return groups;
+}
+
+export async function getNearestPictureGroup(
+  lat: number,
+  lng: number
+) {
+  const groups = await groupPicturesByLocation();
+  if (groups.length === 0) {
+    return [];
+  }
+
+  let nearestGroup = groups[0];
+  let minDistance = distanceKm(lat, lng, nearestGroup[0].lat, nearestGroup[0].lng);
+
+  for (const group of groups) {
+    const dist = distanceKm(lat, lng, group[0].lat, group[0].lng);
+    if (dist < minDistance) {
+      nearestGroup = group;
+      minDistance = dist;
+    }
+  }
+
+  return nearestGroup;
+}

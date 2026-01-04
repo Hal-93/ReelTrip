@@ -29,6 +29,10 @@ model User {
   avatar      String?
   location    String      @default("")
 
+  //ホームに表示させるリール
+  reelId String? @unique
+  reel   Reel? @relation(fields: [reelId], references: [id])
+
   files    File[]
   pictures Picture[]
   favorite Genre      @default(None)
@@ -63,8 +67,12 @@ model Picture {
 model Reel {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
+
+  user   User?  @relation
+  userId String?
+
   pictures Picture[]
-  
+
   caption String?
 }
 

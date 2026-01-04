@@ -9,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "~/components/ui/dialog";
+import TaskBar from "~/components/taskbar/taskbar";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await getUser(request);
@@ -430,6 +431,8 @@ export default function Upload() {
   })();
 
   return (
+    <>
+    <TaskBar/>
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6">
       <h2 className="text-3xl font-bold mb-8 text-gray-800">アップロード</h2>
       <form
@@ -539,7 +542,7 @@ export default function Upload() {
             <>
               <div className="rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800 mb-3">
                 <p className="font-semibold">この画像はアップロードできます</p>
-                <p>ジャンルと価格を入力してください。</p>
+                <p>画像のジャンルとこの場所の予算を入力してください。</p>
               </div>
               <div className="mt-4">
                 <label className="block text-sm mb-1">この画像のジャンル</label>
@@ -557,7 +560,6 @@ export default function Upload() {
               <div className="mt-4">
                 <label className="block text-sm font-medium mb-1">予算</label>
                 <p className="text-xs text-gray-600 mb-2">
-                  いくらぐらいかかりましたか?
                 </p>
                 <div className="flex items-center rounded-sm border p-2">
                   <span className="mr-1 text-gray-700 text-sm">¥</span>
@@ -592,5 +594,6 @@ export default function Upload() {
         </DialogContent>
       </Dialog>
     </div>
+    </>
   );
 }
