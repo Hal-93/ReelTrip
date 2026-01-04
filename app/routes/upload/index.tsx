@@ -565,7 +565,7 @@ export default function Upload() {
           </button>
         </DialogContent>
       </Dialog>
-      <TaskBar/>
+      <TaskBar />
     </div>
   );
 }

@@ -60,7 +60,7 @@ export default function ReelsPage() {
         </div>
       )}
 
-      <TaskBar/>
+      <TaskBar />
     </div>
   );
 }

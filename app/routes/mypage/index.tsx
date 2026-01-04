@@ -4,7 +4,6 @@
 import type { FC } from "react";
 import { Pencil, Plus, User } from "lucide-react";
 
-
 const MyPage: FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-cyan-700 to-blue-900">
