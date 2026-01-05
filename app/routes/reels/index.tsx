@@ -3,6 +3,8 @@ export async function loader() {
 }
 
 import { useNavigate } from "react-router";
+import { useLoaderData } from "react-router";
+import TaskBar from "~/components/taskbar/taskbar";
 import { useState, useEffect } from "react";
 
 export default function ReelsPage() {
@@ -80,6 +82,8 @@ export default function ReelsPage() {
           <span className="text-lg font-semibold">生成中...</span>
         </div>
       )}
+
+      <TaskBar />
     </div>
   );
 }

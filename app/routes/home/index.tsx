@@ -132,12 +132,13 @@ export default function Home() {
           </Card>
         </div>
       </main>
-      <Link
+      {/* <Link
         to="/upload"
         className="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg transition z-50"
       >
         <Plus />
-      </Link>
+      </Link> */}
+      <TaskBar />
     </div>
   );
 }

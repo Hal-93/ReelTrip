@@ -5,6 +5,7 @@ import mapboxgl from "mapbox-gl";
 
 import { DrawerDemo } from "~/components/map/mapfooter";
 import { MapHeader } from "~/components/map/mapheader";
+import TaskBar from "~/components/taskbar/taskbar";
 
 
 type MarkerWithPopupProps = {
@@ -353,6 +354,7 @@ export default function MapPage() {
           currentTab={travelMode}
         />
       )}
+    <TaskBar />  
     </div>
   );
 }
