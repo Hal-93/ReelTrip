@@ -83,7 +83,6 @@ export function MarkerWithPopup({
 
   return null;
 }
-import { MarkerWithPopup } from "~/components/map/MarkerWithPopup";
 
 export const links = () => [
   {
@@ -117,7 +116,6 @@ export default function MapPage() {
   const [currentPlace, setCurrentPlace] = useState<string | null>(null);
   const [destinationPlace, setDestinationPlace] = useState<string | null>(null);
   const [destinationImage, setDestinationImage] = useState<string | null>(null);
-  const [pinLocation, setPinLocation] = useState<[number, number] | null>(null);
   const [distance, setDistance] = useState<string | null>(null);
   const [duration, setDuration] = useState<string | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);

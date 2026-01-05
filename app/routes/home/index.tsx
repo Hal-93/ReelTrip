@@ -8,8 +8,6 @@ import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogTrigger } from "~/components/ui/dialog";
 import { UserSidebar } from "~/components/basic/usermenu";
 import { getFilesByUser } from "~/lib/models/file.server";
-import { Link } from "react-router";
-import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import { Toaster } from "sonner";
 import TaskBar from "~/components/taskbar/taskbar";
