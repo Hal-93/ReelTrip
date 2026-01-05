@@ -24,7 +24,29 @@ export async function action({ request }: ActionFunctionArgs) {
     const height = formData.get("height");
     const date = formData.get("date");
     const price = formData.get("price");
-    //onst genre = formData.get("genre");
+    const genre = formData.get("genre");
+    let mappedGenre:
+      | "None"
+      | "Gourmet"
+      | "Sightseeing"
+      | "Activity"
+      | undefined;
+    switch (genre) {
+      case "N":
+        mappedGenre = "None";
+        break;
+      case "G":
+        mappedGenre = "Gourmet";
+        break;
+      case "S":
+        mappedGenre = "Sightseeing";
+        break;
+      case "A":
+        mappedGenre = "Activity";
+        break;
+      default:
+        mappedGenre = undefined;
+    }
     const quality = formData.get("quality");
 
     if (quality === "false") {
@@ -51,7 +73,7 @@ export async function action({ request }: ActionFunctionArgs) {
         height: Number(height),
         date: String(date),
         price: price ? Number(price) : undefined,
-        //genre: genre ? String(genre) : undefined
+        genre: mappedGenre,
       });
     } catch (error) {
       console.error(error);

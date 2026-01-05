@@ -1,6 +1,10 @@
 import type { ActionFunction } from "react-router";
 import OpenAI from "openai";
 
+const spot = "吟風 赤羽店";
+const latitude = 35.77952660059958;
+const longitude = 139.72441244424638;
+
 export const action: ActionFunction = async ({ request }) => {
   try {
     const form = await request.formData();
@@ -9,9 +13,9 @@ export const action: ActionFunction = async ({ request }) => {
       return Response.json({ error: "No file provided" }, { status: 400 });
     }
 
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-    const base64 = buffer.toString("base64");
+    // const arrayBuffer = await file.arrayBuffer();
+    // const buffer = Buffer.from(arrayBuffer);
+    // const base64 = buffer.toString("base64");
 
     const oai = new OpenAI({
       apiKey: process.env.API_KEY,
@@ -24,7 +28,7 @@ export const action: ActionFunction = async ({ request }) => {
         content: [
           {
             type: "text",
-            text: "画像を分類するAIです",
+            text: "あなたはスポットのジャンル分類と概要説明を行うアシスタントです。スポット名を最優先に判断し、緯度・経度は補助情報として使用してください。",
           },
         ],
       },
@@ -33,11 +37,18 @@ export const action: ActionFunction = async ({ request }) => {
         content: [
           {
             type: "text",
-            text: "写真内容からジャンル(Gourmet/Activity/Sightseeing/None)の頭文字G,A,S,N と quality(true/false)を分類し、JSONで返せ。人がメインの被写体となっている場合N。",
-          },
-          {
-            type: "image_url",
-            image_url: { url: `data:image/png;base64,${base64}` },
+            text: `
+            以下の情報をもとに、このスポットの情報を出力してください。
+            
+            ・スポット名: ${spot}
+            ・緯度: ${latitude}
+            ・経度: ${longitude}
+            
+            出力形式は以下に従ってください：
+
+            ジャンル: （一言で）
+            概要: （端的に場所の魅力と特徴を説明）
+            `,
           },
         ],
       },
