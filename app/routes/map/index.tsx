@@ -1,11 +1,11 @@
-import { useLoaderData } from "react-router";
+import { useLoaderData, useNavigate } from "react-router"; // ✅ useNavigate を追加
 import { useEffect, useRef, useState } from "react";
 import "mapbox-gl/dist/mapbox-gl.css";
 import mapboxgl from "mapbox-gl";
 
 import { DrawerDemo } from "~/components/map/mapfooter";
 import { MapHeader } from "~/components/map/mapheader";
-import TaskBar from "~/components/taskbar/taskbar"; // ✅ タスクバーを復活
+import TaskBar from "~/components/taskbar/taskbar";
 
 /* ================= MarkerWithPopup ================= */
 
@@ -42,40 +42,33 @@ export function MarkerWithPopup({
     const popup = new mapboxgl.Popup({
       closeButton: false,
       closeOnClick: false,
-      offset: 0, // ✅ ピンを消したため座標に合わせる
-      anchor: "bottom", // ✅ 座標の真上にポップアップを表示
+      offset: 0,
+      anchor: "bottom",
     })
       .setLngLat(coordinates)
       .setDOMContent(popupContainer);
 
-    // ✅ 赤いピン(marker)の作成・表示処理を削除しました
-
-    // ✅ ズームに応じた表示/非表示の制御
     const handleZoom = () => {
       const zoom = map.getZoom();
       if (zoom < 11) {
-        popup.remove(); // 11未満で非表示
+        popup.remove();
       } else {
-        if (!popup.isOpen()) popup.addTo(map); // 11以上で表示
+        if (!popup.isOpen()) popup.addTo(map);
       }
     };
 
     const handleClick = () => {
-      // ✅ ズームレベルを14.5に緩和（寄りすぎ防止）
       map.flyTo({ center: coordinates, zoom: 14.5, duration: 800 });
       onPopupClick(coordinates, title, image);
     };
 
-    // イベント登録
     map.on("zoom", handleZoom);
-    // ✅ marker へのイベント登録を削除し、popupContainer への登録のみ維持
     popupContainer.addEventListener("click", handleClick);
 
-    handleZoom(); // 初回実行
+    handleZoom();
 
     return () => {
       map.off("zoom", handleZoom);
-      // ✅ marker.remove() を削除
       popup.remove();
       popupContainer.removeEventListener("click", handleClick);
     };
@@ -110,6 +103,7 @@ type TravelMode = "car" | "walk" | "spot";
 
 export default function MapPage() {
   const { token } = useLoaderData<typeof loader>();
+  const navigate = useNavigate(); // ✅ navigate を初期化
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
 
@@ -122,6 +116,11 @@ export default function MapPage() {
   const [duration, setDuration] = useState<string | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [travelMode, setTravelMode] = useState<TravelMode>("car");
+
+  // ✅ 追加: リール画面へ戻る処理
+  const handleBack = () => {
+    navigate("/reels/preview");
+  };
 
   const samplePlaces: MapPlace[] = [
     {
@@ -157,7 +156,7 @@ export default function MapPage() {
       container: mapContainerRef.current,
       style: "mapbox://styles/so03jp/cmacq6ily00l501rf5j67an3w",
       center: [139.720204, 35.783899],
-      zoom: 12, // ✅ 初期のズームも12に緩和
+      zoom: 12,
     });
     mapRef.current = map;
 
@@ -168,7 +167,7 @@ export default function MapPage() {
         const res = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${token}`);
         const data = await res.json();
         setCurrentPlace(data.features?.[0]?.place_name ?? "現在地");
-        map.flyTo({ center: [longitude, latitude], zoom: 13 }); // ✅ 現在地表示も13に緩和
+        map.flyTo({ center: [longitude, latitude], zoom: 13 });
       },
       (error) => console.error(error),
       { enableHighAccuracy: true }
@@ -204,9 +203,11 @@ export default function MapPage() {
 
   return (
     <div style={{ height: "100vh", width: "100vw", position: "relative", overflow: "hidden" }}>
+      {/* ✅ onBack を渡す */}
       <MapHeader
         currentPlace={currentPlace ?? undefined}
         destinationPlace={destinationPlace ?? undefined}
+        onBack={handleBack}
       />
 
       <div ref={mapContainerRef} style={{ width: "100%", height: "100%" }} />
