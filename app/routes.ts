@@ -3,7 +3,6 @@ import { type RouteConfig, index } from "@react-router/dev/routes";
 export default [
   index("routes/home.tsx"),
   { path: "signup", file: "routes/signup/index.tsx" },
-  { path: "login", file: "routes/login/index.tsx" },
   { path: "favorites", file: "routes/favorites/index.tsx" },
   { path: "mypage", file: "routes/mypage/index.tsx" },
   { path: "reels", file: "routes/reels/index.tsx" },

@@ -13,6 +13,8 @@ type CreatePictureParams = {
   genre?: Genre;
 };
 
+
+
 export async function createPicture(params: CreatePictureParams) {
   const { userId, fileId, lat, lng, width, height, date, price, genre } =
     params;

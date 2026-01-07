@@ -50,72 +50,100 @@ export function LoginForm({
 
   return (
     <form
-      className={`flex flex-col gap-6 ${className ?? ""}`}
+      className={`relative mx-auto w-full max-w-2xl rounded-2xl border bg-card p-8 text-card-foreground shadow-lg ${className ?? ""}`}
       onSubmit={handleSubmit}
       {...props}
     >
-      <div className="flex flex-col items-center gap-2 text-center">
-        <h1 className="text-2xl font-bold">ログイン</h1>
-      </div>
-
-      <div className="grid gap-6">
-        {error && (
-          <div className="text-red-500 text-sm text-center">{error}</div>
-        )}
-
-        <div className="grid gap-3">
-          <input
-            id="email"
-            type="email"
-            placeholder="メールアドレス"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="px-4 py-3 rounded-lg bg-black/30 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        <div className="grid gap-3">
-          <input
-            id="password"
-            type="password"
-            placeholder="パスワード"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="px-4 py-3 rounded-lg bg-black/30 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        <Button type="submit" className="w-full">
-          ログイン
-        </Button>
-
-        <hr />
-
-        <Button
-          type="button"
-          className="w-full mt-4 bg-white text-black px-8 py-3 rounded-lg hover:bg-gray-400"
-          onClick={handleGoogleLogin}
-        >
+      <div className="mb-6 flex flex-col items-center gap-2 text-center">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
-            className="w-5 h-5 mr-2 inline"
+            className="h-6 w-6 text-primary"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
           >
-            <path
-              d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"
-              fill="currentColor"
-            />
+            <path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5z" />
+            <path d="M3 21a9 9 0 0 1 18 0" />
           </svg>
-          Googleでログイン
+        </div>
+        <h1 className="text-2xl font-bold tracking-tight">ReelTrip</h1>
+        <p className="text-sm text-muted-foreground">
+          アカウントにログインして続行
+        </p>
+      </div>
+
+      <div className="grid gap-4">
+        <div className="grid gap-2">
+          <label htmlFor="email" className="text-sm font-medium">
+            メールアドレス
+          </label>
+          <input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="h-11 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            placeholder="you@example.com"
+            required
+          />
+        </div>
+
+        <div className="grid gap-2">
+          <label htmlFor="password" className="text-sm font-medium">
+            パスワード
+          </label>
+          <input
+            id="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="h-11 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            required
+          />
+        </div>
+
+        {error && (
+          <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
+            {error}
+          </div>
+        )}
+
+        <Button type="submit" className="h-11 w-full">
+          ログイン
         </Button>
       </div>
 
-      <div className="text-center text-sm">
-        アカウントをお持ちではありませんか？{" "}
-        <a href="/signup" className="underline underline-offset-4">
-          新規作成
-        </a>
+      <div className="relative my-6">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-card px-2 text-muted-foreground">
+            or continue with
+          </span>
+        </div>
       </div>
+
+      <Button
+        type="button"
+        variant="outline"
+        className="h-11 w-full gap-2 bg-transparent text-foreground hover:bg-muted"
+        onClick={handleGoogleLogin}
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          className="h-5 w-5"
+        >
+          <path
+            d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"
+            fill="currentColor"
+          />
+        </svg>
+        Googleでログイン
+      </Button>
     </form>
   );
 }
