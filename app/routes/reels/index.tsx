@@ -3,7 +3,6 @@ export async function loader() {
 }
 
 import { useNavigate } from "react-router";
-import { useLoaderData } from "react-router";
 import TaskBar from "~/components/taskbar/taskbar";
 import { useState, useEffect } from "react";
 

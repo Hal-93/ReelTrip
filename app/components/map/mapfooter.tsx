@@ -9,6 +9,7 @@ import {
 } from "~/components/ui/drawer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { CarFront, Footprints, X, MapPin } from "lucide-react";
+
 type TravelMode = "car" | "walk" | "spot";
 
 interface DrawerDemoProps {
@@ -38,17 +39,12 @@ export function DrawerDemo({
 }: DrawerDemoProps) {
   const displayDist = distance || "--- km";
   const displayTime = duration || "--- 分";
-  const displayPlace = place || "お店のpin(仮)";
+  // エラー解消：使われていない変数 displayPlace を削除しました
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerTrigger asChild>
-        <Button
-          variant="outline"
-          className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 shadow-xl rounded-full px-6 max-w-[90vw] truncate"
-        >
-          {displayPlace}
-        </Button>
+        <div className="hidden" /> 
       </DrawerTrigger>
 
       <DrawerContent className="mx-auto w-full bg-[#004f83d3]">
