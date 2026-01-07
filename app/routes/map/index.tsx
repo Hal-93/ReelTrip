@@ -42,15 +42,13 @@ export function MarkerWithPopup({
     const popup = new mapboxgl.Popup({
       closeButton: false,
       closeOnClick: false,
-      offset: 25,
+      offset: 0, // ✅ ピンを消したため座標に合わせる
+      anchor: "bottom", // ✅ 座標の真上にポップアップを表示
     })
       .setLngLat(coordinates)
       .setDOMContent(popupContainer);
-    // 初期表示のために addTo(map) は handleZoom 内で行います
 
-    const marker = new mapboxgl.Marker({ color: "#ff3333" })
-      .setLngLat(coordinates)
-      .addTo(map);
+    // ✅ 赤いピン(marker)の作成・表示処理を削除しました
 
     // ✅ ズームに応じた表示/非表示の制御
     const handleZoom = () => {
@@ -70,16 +68,15 @@ export function MarkerWithPopup({
 
     // イベント登録
     map.on("zoom", handleZoom);
-    marker.getElement().addEventListener("click", handleClick);
+    // ✅ marker へのイベント登録を削除し、popupContainer への登録のみ維持
     popupContainer.addEventListener("click", handleClick);
 
     handleZoom(); // 初回実行
 
     return () => {
       map.off("zoom", handleZoom);
-      marker.remove();
+      // ✅ marker.remove() を削除
       popup.remove();
-      marker.getElement().removeEventListener("click", handleClick);
       popupContainer.removeEventListener("click", handleClick);
     };
   }, [map, coordinates, title, image, onPopupClick]);
