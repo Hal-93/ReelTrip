@@ -1,4 +1,4 @@
-import { useNavigate, useLocation } from "react-router-dom"; // locationを追加
+import { useNavigate, useLocation } from "react-router-dom";
 import React from "react";
 import TaskBarItem from "./taskbar-item";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -20,8 +20,17 @@ const TaskBar: React.FC = () => {
     { id: "upload", label: "投稿", path: "/upload", icon: <FontAwesomeIcon icon={faCamera} /> },
   ];
 
+  const pathname = location.pathname;
+
+  const normalizedPath =
+    pathname === "/reels" || pathname === "/map"
+      ? "/reels/preview"
+      : pathname;
+
   const activeTab =
-    items.find((item) => item.path === location.pathname)?.id || "home";
+    items.find((item) =>
+      normalizedPath.startsWith(item.path),
+    )?.id || "home";
 
   return (
     <div className="fixed bottom-4 w-fit mx-auto inset-x-0 py-3 px-16 bg-gray-200/80 shadow-xl rounded-full z-50 backdrop-blur-md text-gray-900">

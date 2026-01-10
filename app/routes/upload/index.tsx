@@ -41,6 +41,8 @@ export default function Upload() {
   const [aiResult, setAiResult] = useState<string | null>(null);
   const [genre, setGenre] = useState<string>("N");
   const [price, setPrice] = useState<string>("0");
+  const [spotName, setSpotName] = useState<string>("");
+  const isSpotInvalid = !spotName.trim();
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (typeof window === "undefined") return;
@@ -356,6 +358,10 @@ export default function Upload() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!spotName.trim()) {
+      setMessage("スポット名は必須項目です。");
+      return;
+    }
     setMessage(null);
     if (!selectedFile) {
       setMessage("No file selected.");
@@ -366,6 +372,9 @@ export default function Upload() {
 
     const formData = new FormData();
     formData.append("file", selectedFile);
+    if (spotName) {
+      formData.append("spot", spotName);
+    }
 
     if (exifInfo) {
       if (exifInfo["GPSLatitude(dec)"] !== undefined) {
@@ -542,24 +551,44 @@ export default function Upload() {
             <>
               <div className="rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800 mb-3">
                 <p className="font-semibold">この画像はアップロードできます</p>
-                <p>画像のジャンルとこの場所の予算を入力してください。</p>
+                <p>この場所に関する詳細情報を提供してください</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  <b>スポット名</b>
+                </label>
+                <p className="text-xs text-gray-600 mb-2">
+                  画像のスポット名を入力してください
+                </p>
+                <input
+                  type="text"
+                  value={spotName}
+                  onChange={(e) => setSpotName(e.target.value)}
+                  required
+                  className="w-full rounded-sm border p-2 text-sm"
+                  placeholder="例：〇〇カフェ / 〇〇公園"
+                />
               </div>
               <div className="mt-4">
-                <label className="block text-sm mb-1">この画像のジャンル</label>
+                <label className="block text-sm mb-1"><b>この画像のジャンル</b></label>
+                <p className="text-xs text-gray-600 mb-2">
+                  AIにより判断されたジャンルです。手動で修正することができます。
+                </p>
                 <select
                   value={genre}
                   onChange={(e) => setGenre(e.target.value)}
                   className="w-full border rounded-sm p-2 text-sm"
                 >
-                  <option value="N">なし</option>
                   <option value="A">アクティビティ</option>
                   <option value="S">景色</option>
                   <option value="G">食事</option>
+                  <option value="N">(該当なし)</option>
                 </select>
               </div>
               <div className="mt-4">
-                <label className="block text-sm font-medium mb-1">予算</label>
+                <label className="block text-sm font-medium mb-1"><b>予算</b></label>
                 <p className="text-xs text-gray-600 mb-2">
+                  この場所でかかった予算はいくらですか?
                 </p>
                 <div className="flex items-center rounded-sm border p-2">
                   <span className="mr-1 text-gray-700 text-sm">¥</span>
@@ -576,9 +605,9 @@ export default function Upload() {
               <button
                 type="button"
                 onClick={handleSubmit}
-                disabled={isUploading || isQualityBad}
+                disabled={isUploading || isQualityBad || isSpotInvalid}
                 className={`w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-sm transition-colors duration-200 ${
-                  isUploading || isQualityBad
+                  isUploading || isQualityBad || isSpotInvalid
                     ? "opacity-50 cursor-not-allowed hover:bg-blue-600"
                     : ""
                 }`}
@@ -587,7 +616,9 @@ export default function Upload() {
                   ? "アップロード不可"
                   : isUploading
                     ? "アップロード中..."
-                    : "アップロード"}
+                    : isSpotInvalid
+                      ? "スポット名を入力してください"
+                      : "アップロード"}
               </button>
             </>
           )}

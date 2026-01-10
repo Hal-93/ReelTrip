@@ -11,6 +11,8 @@ import { getFilesByUser } from "~/lib/models/file.server";
 import { toast } from "sonner";
 import { Toaster } from "sonner";
 import TaskBar from "~/components/taskbar/taskbar";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCamera } from "@fortawesome/free-solid-svg-icons";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await getUser(request);
@@ -121,7 +123,12 @@ export default function Home() {
                 ))}
                 {files.length === 0 ? (
                   <p className="text-sm text-muted-foreground col-span-full">
-                    まだ投稿がありません。「アップロード」から追加してください。
+                    まだ投稿がないようです...<br/>
+                    <span className="inline-flex items-center gap-1 ml-1">
+                      「<FontAwesomeIcon icon={faCamera} />
+                      投稿」
+                    </span>
+                    から最初の画像をアップロードしてみましょう！
                   </p>
                 ) : null}
               </div>

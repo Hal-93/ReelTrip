@@ -15,10 +15,14 @@ type MarkerWithPopupProps = {
   coordinates: [number, number];
   title: string;
   image: string;
+  category?: string | null;
+  description?: string | null;
   onPopupClick: (
     coordinates: [number, number],
     title: string,
     image: string,
+    category?: string | null,
+    description?: string | null,
   ) => void;
 };
 
@@ -27,6 +31,8 @@ export function MarkerWithPopup({
   coordinates,
   title,
   image,
+  category,
+  description,
   onPopupClick,
 }: MarkerWithPopupProps) {
   useEffect(() => {
@@ -91,7 +97,7 @@ export function MarkerWithPopup({
 
     const handleClick = () => {
       map.flyTo({ center: coordinates, zoom: 14.5, duration: 800 });
-      onPopupClick(coordinates, title, image);
+      onPopupClick(coordinates, title, image, category, description);
     };
 
     map.on("zoom", handleZoom);
@@ -107,7 +113,7 @@ export function MarkerWithPopup({
       marker.getElement().removeEventListener("click", handleClick);
       popupContainer.removeEventListener("click", handleClick);
     };
-  }, [map, coordinates, title, image, onPopupClick]);
+  }, [map, coordinates, title, image, category, description, onPopupClick]);
 
   return null;
 }
@@ -147,6 +153,8 @@ export async function loader({ request }: { request: Request }) {
             title: placeName,
             coordinates: [p.lng, p.lat] as [number, number],
             image: p.image,
+            category: p.category ?? null,
+            description: p.description ?? null,
           };
         }),
       )
@@ -174,13 +182,20 @@ export default function MapPage() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [travelMode, setTravelMode] = useState<TravelMode>("car");
 
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedDescription, setSelectedDescription] = useState<string | null>(null);
+
   const handlePopupClick = async (
     coordinates: [number, number],
     title: string,
     image: string,
+    category?: string | null,
+    description?: string | null,
   ) => {
     setPinLocation(coordinates);
     setDestinationImage(image);
+    setSelectedCategory(category ?? null);
+    setSelectedDescription(description ?? null);
 
     const res = await fetch(
       `https://api.mapbox.com/geocoding/v5/mapbox.places/${coordinates[0]},${coordinates[1]}.json?access_token=${token}`,
@@ -283,6 +298,8 @@ export default function MapPage() {
             coordinates={place.coordinates}
             title={place.title}
             image={place.image}
+            category={place.category}
+            description={place.description}
             onPopupClick={handlePopupClick}
           />
         ))}
@@ -295,6 +312,8 @@ export default function MapPage() {
             place={destinationPlace}
             spotTitle={destinationPlace}
             spotImage={destinationImage}
+            category={selectedCategory}
+            description={selectedDescription}
             open={isDrawerOpen}
             onOpenChange={setIsDrawerOpen}
             onTabChange={setTravelMode}

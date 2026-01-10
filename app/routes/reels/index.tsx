@@ -28,7 +28,7 @@ export default function ReelsPage() {
 
       <div className="mb-8 w-full max-w-md">
         <p className="text-sm font-semibold mb-3 text-center text-blue-200">
-          今日の気分を選択
+          今の気分を選択
         </p>
         <div className="flex gap-4 justify-center">
           {(["見る", "遊ぶ", "食べる"] as const).map((p) => (
@@ -108,7 +108,7 @@ export default function ReelsPage() {
       </button>
 
       <p className="text-xs text-gray-300 mt-2 text-center">
-        リール動画生成可能回数は0:00にリセットされます。
+        リール動画生成可能回数は0:00にリセットされます
       </p>
 
       {loading && (

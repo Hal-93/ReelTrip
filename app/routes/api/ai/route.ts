@@ -33,7 +33,7 @@ export const action: ActionFunction = async ({ request }) => {
         content: [
           {
             type: "text",
-            text: "写真内容からジャンル(Gourmet/Activity/Sightseeing/None)の頭文字G,A,S,N と quality(true/false)を分類し、JSONで返せ。人がメインの被写体となっている場合N。",
+            text: "写真内容からジャンル(Gourmet/Activity/Sightseeing/None)の頭文字G,A,S,N と 画像の品質(ピント、解像度)quality(true/false)を分類し、JSONで返せ。",
           },
           {
             type: "image_url",
