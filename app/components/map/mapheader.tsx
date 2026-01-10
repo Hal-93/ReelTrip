@@ -1,13 +1,12 @@
 import { ArrowLeft, Circle, MapPin } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 
 type MapHeaderProps = {
   currentPlace?: string; // 現在地住所
   destinationPlace?: string; // 目的地住所
+  onBack?: () => void; // ✅ 追加: 戻るボタンが押された時の処理
 };
 
-export function MapHeader({ currentPlace, destinationPlace }: MapHeaderProps) {
-  const navigate = useNavigate();
+export function MapHeader({ currentPlace, destinationPlace, onBack }: MapHeaderProps) {
   return (
     <div
       className="flex items-center pt-2"
@@ -15,7 +14,7 @@ export function MapHeader({ currentPlace, destinationPlace }: MapHeaderProps) {
     >
       <ArrowLeft
         className="text-[#004f83] h-8 w-1/12 cursor-pointer"
-        onClick={() => navigate(-1)}
+        onClick={onBack} // ✅ navigate(-1) から onBack に変更
       />
       <div className="bg-[#004f83d3] bg-opacity-80 p-4 rounded-xl shadow-lg w-10/12">
         <div className="flex items-center space-x-3">
