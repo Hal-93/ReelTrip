@@ -326,6 +326,8 @@ export async function getUserReelLocations(params: {
       lat: number;
       lng: number;
       image: string;
+      category: string | null;
+      description: string | null;
     }[]
   | null
 > {
@@ -339,6 +341,8 @@ export async function getUserReelLocations(params: {
               id: true,
               lat: true,
               lng: true,
+              category: true,
+              description: true,
               file: {
                 select: {
                   downloadLink: true,
@@ -360,5 +364,7 @@ export async function getUserReelLocations(params: {
     lat: p.lat,
     lng: p.lng,
     image: p.file.downloadLink,
+    category: p.category ?? null,
+    description: p.description ?? null,
   }));
 }

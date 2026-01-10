@@ -22,6 +22,9 @@ interface DrawerDemoProps {
   spotTitle?: string | null;
   spotImage?: string | null;
 
+  category?: string | null;
+  description?: string | null;
+
   onTabChange: (mode: TravelMode) => void;
   currentTab: TravelMode;
 }
@@ -29,11 +32,11 @@ interface DrawerDemoProps {
 export function DrawerDemo({
   distance,
   duration,
-  place,
   open,
   onOpenChange,
   spotTitle,
-  spotImage,
+  category,
+  description,
   onTabChange,
   currentTab,
 }: DrawerDemoProps) {
@@ -101,7 +104,8 @@ export function DrawerDemo({
             <SpotTab
               value="spot"
               title={spotTitle ?? ""}
-              image={spotImage ?? ""}
+              category={category ?? ""}
+              description={description ?? ""}
             />
           </div>
         </Tabs>
@@ -154,21 +158,41 @@ function ContentTab({
 function SpotTab({
   value,
   title,
-  image,
+  category,
+  description,
 }: {
   value: string;
   title: string;
-  image: string;
+  category: string;
+  description: string;
 }) {
   return (
     <TabsContent value={value}>
-      <div className="p-4 pb-0 m-10 text-center">
-        <img
-          src={image}
-          alt={title}
-          className="w-full max-w-[300px] mx-auto rounded-xl shadow-lg"
-        />
-        <div className="text-3xl font-bold text-white mb-4">{title}</div>
+      <div className="p-4 m-8 text-center">
+
+        <div className="mt-4 text-2xl font-bold text-white">
+          {title}
+        </div>
+
+        {category && (
+          <div className="mt-2">
+            <span className="inline-block rounded-full bg-white/20 px-3 py-1 text-sm text-white">
+              {category}
+            </span>
+          </div>
+        )}
+
+        {description && (
+          <p className="mt-4 text-sm leading-relaxed text-white/80">
+            {description}
+          </p>
+        )}
+
+        {!category && !description && (
+          <p className="mt-4 text-sm text-white/50">
+            スポットの詳細情報はありません。
+          </p>
+        )}
       </div>
     </TabsContent>
   );
