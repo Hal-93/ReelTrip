@@ -19,8 +19,10 @@ export default [
   { path: "api/auth/session", file: "routes/api/auth/session/route.ts" },
   { path: "api/auth/logout", file: "routes/api/auth/logout/route.ts" },
   { path: "api/upload", file: "routes/api/upload/route.ts" },
+  { path: "api/getreel", file: "routes/api/getreel/route.ts" },
+
   { path: "api/image", file: "routes/api/image/route.ts" },
+  { path: "api/complete", file: "routes/api/complete/route.ts" },
   { path: "api/ai", file: "routes/api/ai/route.ts" },
   { path: "api/files/:objectName", file: "routes/api/files/route.ts" },
-  { path: "api/group", file: "routes/api/group/route.ts" },
 ] satisfies RouteConfig;

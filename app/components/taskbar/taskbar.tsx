@@ -15,12 +15,11 @@ const TaskBar: React.FC = () => {
 
   const items = [
     { id: "home", label: "ホーム", path: "/home", icon: <FontAwesomeIcon icon={faHouse} /> },
-    { id: "reels", label: "リール探索", path: "/reels", icon: <FontAwesomeIcon icon={faPlayCircle} /> },
+    { id: "reels", label: "リール探索", path: "/reels/preview", icon: <FontAwesomeIcon icon={faPlayCircle} /> },
     { id: "favorites", label: "いいね", path: "/favorites", icon: <FontAwesomeIcon icon={faHeart} /> },
     { id: "upload", label: "投稿", path: "/upload", icon: <FontAwesomeIcon icon={faCamera} /> },
   ];
 
-  // 現在のURLパスに基づいてアクティブなタブを決定（初期値はhome）
   const activeTab =
     items.find((item) => item.path === location.pathname)?.id || "home";
 

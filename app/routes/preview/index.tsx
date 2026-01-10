@@ -1,11 +1,41 @@
-import { useNavigate, useLocation } from "react-router";
+import { useNavigate, useLoaderData } from "react-router";
 import TaskBar from "~/components/taskbar/taskbar";
 import { Button } from "~/components/ui/button";
+import type { LoaderFunctionArgs } from "react-router";
+import { getUser } from "~/lib/models/auth.server";
+import { getUserReel } from "~/lib/models/reel.server";
+import { getPresignedVideoUrl } from "~/lib/service/minio";
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  const user = await getUser(request);
+
+  if (!user) {
+    return JSON.parse(JSON.stringify({ reel: null, videoUrl: null }));
+  }
+
+  const reel = await getUserReel({
+    userId: user.id,
+  });
+
+  if (!reel) {
+    return JSON.parse(JSON.stringify({ reel: null, videoUrl: null }));
+  }
+
+  const videoUrl = await getPresignedVideoUrl(
+    reel.videoFile.objectName,
+  );
+
+  return JSON.parse(
+    JSON.stringify({
+      reel,
+      videoUrl,
+    }),
+  );
+}
 
 export default function ReelsPreviewPage() {
   const navigate = useNavigate();
-  const location = useLocation();
-  const videoUrl = location.state?.video_url ?? null;
+  const { videoUrl } = useLoaderData<typeof loader>();
 
   const handleToMap = () => {
     navigate("/map", {
@@ -32,7 +62,15 @@ export default function ReelsPreviewPage() {
           マップ
         </Button>
       </div>
-      {videoUrl ? (
+      {!videoUrl ? (
+        <div className="flex items-center justify-center w-full h-full text-gray-300">
+          リールがまだないようです
+        </div>
+      ) : videoUrl === "" ? (
+        <div className="flex items-center justify-center w-full h-full text-gray-300">
+          動画を生成中です…
+        </div>
+      ) : (
         <video
           key={videoUrl}
           src={videoUrl}
@@ -42,10 +80,6 @@ export default function ReelsPreviewPage() {
           playsInline
           className="w-full h-full object-cover"
         />
-      ) : (
-        <div className="flex items-center justify-center w-full h-full text-gray-300">
-          動画が見つかりません
-        </div>
       )}
 
       <div className="absolute right-4 top-1/3 flex flex-col items-center gap-6 text-white">

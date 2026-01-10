@@ -1,6 +1,6 @@
 import type { ActionFunctionArgs } from "react-router";
 import { getUser } from "~/lib/models/auth.server";
-import { generateMakeVideoKeys, createReelFromSelectedKeys } from "~/lib/models/reel.server";
+import { generateMakeVideoKeys } from "~/lib/models/reel.server";
 
 export async function action({ request }: ActionFunctionArgs) {
   const user = await getUser(request);
@@ -23,19 +23,8 @@ export async function action({ request }: ActionFunctionArgs) {
     preference,
   });
 
-  const reel = await createReelFromSelectedKeys({
-    userId: user.id,
-    selectedPictureObjectNames: keys,
-    video: {
-      fileName: "reel.mp4",
-      objectName: `videos/${user.id}-${Date.now()}.mp4`,
-      downloadLink: "",
-    },
-    caption: null,
-  });
-
   return new Response(
-    JSON.stringify({ keys, reel }),
+    JSON.stringify({ keys }),
     { status: 200, headers: { "Content-Type": "application/json" } }
   );
 }

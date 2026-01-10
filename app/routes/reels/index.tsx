@@ -86,11 +86,21 @@ export default function ReelsPage() {
 
           const dataVideo = await resVideo.json();
           console.log("data:", dataVideo);
+
+          await fetch("/api/complete", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({
+              keys: fetchedFiles,
+              videoObjectName: dataVideo.video_key,
+              downloadLink: dataVideo.video_url,
+            }),
+          });
+
           setLoading(false);
 
-          navigate("/reels/preview", {
-            state: { video_url: dataVideo.video_url },
-          });
+          navigate("/reels/preview");
         }}
         className="bg-blue-500 text-white px-8 py-4 rounded-lg hover:bg-blue-600"
       >
