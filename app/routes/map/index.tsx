@@ -1,4 +1,4 @@
-import { useLoaderData } from "react-router";
+import { useNavigate, useLoaderData } from "react-router";
 import { useEffect, useRef, useState } from "react";
 import "mapbox-gl/dist/mapbox-gl.css";
 import mapboxgl from "mapbox-gl";
@@ -6,6 +6,7 @@ import mapboxgl from "mapbox-gl";
 import { DrawerDemo } from "~/components/map/mapfooter";
 import { MapHeader } from "~/components/map/mapheader";
 import TaskBar from "~/components/taskbar/taskbar"; // ✅ タスクバーを復活
+import { Button } from "~/components/ui/button";
 
 /* ================= MarkerWithPopup ================= */
 
@@ -116,6 +117,8 @@ export default function MapPage() {
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
 
+  const navigate = useNavigate();
+
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [pinLocation, setPinLocation] = useState<[number, number] | null>(null);
   const [currentPlace, setCurrentPlace] = useState<string | null>(null);
@@ -134,6 +137,10 @@ export default function MapPage() {
       image: "https://picsum.photos/400/300",
     },
   ];
+
+  const handleToReel = () => {
+    navigate("/reels/preview");
+  };
 
   const handlePopupClick = async (
     coordinates: [number, number],
@@ -207,6 +214,21 @@ export default function MapPage() {
 
   return (
     <div style={{ height: "100vh", width: "100vw", position: "relative", overflow: "hidden" }}>
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex rounded-full bg-black/60 backdrop-blur">
+        <Button
+          variant="ghost"
+          className="rounded-full px-4 text-white"
+          onClick={handleToReel}
+        >
+          リール
+        </Button>
+        <Button
+          variant="ghost"
+          className="rounded-full px-4 text-white/70"
+        >
+          マップ
+        </Button>
+      </div>
       <MapHeader
         currentPlace={currentPlace ?? undefined}
         destinationPlace={destinationPlace ?? undefined}

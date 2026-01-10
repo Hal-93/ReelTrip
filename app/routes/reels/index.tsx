@@ -1,67 +1,95 @@
-export async function loader() {
-  return { files: [] };
-}
-
-import { useNavigate } from "react-router";
+import { redirect, useNavigate, useLoaderData, type LoaderFunctionArgs } from "react-router";
 import TaskBar from "~/components/taskbar/taskbar";
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { getUser } from "~/lib/models/auth.server";
+
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  const user = await getUser(request);
+  if (!user) {
+    throw redirect("/signup");
+  }
+
+  return { user };
+}
 
 export default function ReelsPage() {
   const navigate = useNavigate();
+  const { user } = useLoaderData() as { user: { id: string } };
   const [loading, setLoading] = useState(false);
   const [files, setFiles] = useState<string[]>([]);
-
-  useEffect(() => {
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords;
-        try {
-          const res = await fetch(
-            `api/group?lat=${latitude}&lng=${longitude}`
-          );
-          const data = await res.json();
-          const group = Array.isArray(data) ? data : data.group;
-          if (Array.isArray(group)) {
-            setFiles(group.map((g: { key: string }) => g.key));
-          }
-        } catch {
-          // fail silently
-        }
-      },
-      () => {
-        // fail silently
-      }
-    );
-  }, []);
+  const [preference, setPreference] = useState<"見る" | "遊ぶ" | "食べる">("見る");
 
   return (
     <div
       className="font-sans flex flex-col items-center justify-center min-h-screen p-8 sm:p-20
                     bg-gradient-to-b from-blue-900 via-blue-800 to-blue-700 text-white"
     >
-      <h1 className="text-3xl font-bold text-center mb-12">リール動画生成</h1>
+
+      <div className="mb-8 w-full max-w-md">
+        <p className="text-sm font-semibold mb-3 text-center text-blue-200">
+          今日の気分を選択
+        </p>
+        <div className="flex gap-4 justify-center">
+          {(["見る", "遊ぶ", "食べる"] as const).map((p) => (
+            <button
+              key={p}
+              onClick={() => setPreference(p)}
+              className={`px-5 py-2 rounded-full border transition
+                ${
+                  preference === p
+                    ? "bg-white text-blue-800 border-white shadow-lg"
+                    : "bg-blue-700/40 text-white border-blue-300 hover:bg-blue-600"
+                }`}
+            >
+              {p}
+            </button>
+          ))}
+        </div>
+      </div>
 
       <button
         onClick={async () => {
-          if (files.length === 0) {
-            return;
-          }
           setLoading(true);
 
-          const selected = files;
+          let fetchedFiles: string[] = [];
+          try {
+            const res = await fetch("/api/image", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              credentials: "include",
+              body: JSON.stringify({ preference, userId: user.id }),
+            });
 
-          const res = await fetch("http://127.0.0.1:8000/make-video", {
+            const data = await res.json();
+            if (Array.isArray(data.keys)) {
+              fetchedFiles = data.keys;
+              setFiles(data.keys);
+            }
+          } catch {
+            // fail silently
+          }
+
+          if (fetchedFiles.length === 0) {
+            setLoading(false);
+            return;
+          }
+
+          const resVideo = await fetch("http://127.0.0.1:8000/make-video", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ keys: selected }),
+            body: JSON.stringify({
+              keys: fetchedFiles,
+              preference,
+            }),
           });
 
-          const data = await res.json();
-          console.log("data:", data);
+          const dataVideo = await resVideo.json();
+          console.log("data:", dataVideo);
           setLoading(false);
 
           navigate("/reels/preview", {
-            state: { video_url: data.video_url },
+            state: { video_url: dataVideo.video_url },
           });
         }}
         className="bg-blue-500 text-white px-8 py-4 rounded-lg hover:bg-blue-600"
@@ -70,8 +98,6 @@ export default function ReelsPage() {
       </button>
 
       <p className="text-xs text-gray-300 mt-2 text-center">
-        2回目以降はポイントを消費します。
-        <br />
         リール動画生成可能回数は0:00にリセットされます。
       </p>
 
