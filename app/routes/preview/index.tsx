@@ -1,10 +1,10 @@
-import { useNavigate, useLoaderData } from "react-router";
+import { useNavigate, useLoaderData, redirect } from "react-router";
 import TaskBar from "~/components/taskbar/taskbar";
-import { Button } from "~/components/ui/button";
 import type { LoaderFunctionArgs } from "react-router";
 import { getUser } from "~/lib/models/auth.server";
 import { getUserReel } from "~/lib/models/reel.server";
 import { getPresignedVideoUrl } from "~/lib/service/minio";
+import { Button } from "~/components/ui/button";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await getUser(request);
@@ -18,7 +18,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   });
 
   if (!reel) {
-    return JSON.parse(JSON.stringify({ reel: null, videoUrl: null }));
+    throw redirect("/reels");
   }
 
   const videoUrl = await getPresignedVideoUrl(
@@ -62,11 +62,7 @@ export default function ReelsPreviewPage() {
           マップ
         </Button>
       </div>
-      {!videoUrl ? (
-        <div className="flex items-center justify-center w-full h-full text-gray-300">
-          リールがまだないようです
-        </div>
-      ) : videoUrl === "" ? (
+      {videoUrl === "" ? (
         <div className="flex items-center justify-center w-full h-full text-gray-300">
           動画を生成中です…
         </div>

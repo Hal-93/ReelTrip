@@ -1,21 +1,29 @@
 import type { ActionFunction } from "react-router";
 import OpenAI from "openai";
 
-const spot = "吟風 赤羽店";
-const latitude = 35.77952660059958;
-const longitude = 139.72441244424638;
-
 export const action: ActionFunction = async ({ request }) => {
   try {
     const form = await request.formData();
-    const file = form.get("file") as File | null;
-    if (!file) {
-      return Response.json({ error: "No file provided" }, { status: 400 });
+    const spot = form.get("spot");
+    const lat = form.get("lat");
+    const lng = form.get("lng");
+
+    if (
+      !spot ||
+      typeof spot !== "string" ||
+      !lat ||
+      !lng ||
+      isNaN(Number(lat)) ||
+      isNaN(Number(lng))
+    ) {
+      return Response.json(
+        { error: "Invalid spot or coordinates" },
+        { status: 400 },
+      );
     }
 
-    // const arrayBuffer = await file.arrayBuffer();
-    // const buffer = Buffer.from(arrayBuffer);
-    // const base64 = buffer.toString("base64");
+    const latitude = Number(lat);
+    const longitude = Number(lng);
 
     const oai = new OpenAI({
       apiKey: process.env.API_KEY,
@@ -28,7 +36,16 @@ export const action: ActionFunction = async ({ request }) => {
         content: [
           {
             type: "text",
-            text: "あなたはスポットのジャンル分類と概要説明を行うアシスタントです。スポット名を最優先に判断し、緯度・経度は補助情報として使用してください。",
+            text: `
+            あなたはJSON生成専用アシスタントです。
+            説明文・コードフェンス・前後の文章は一切出力せず、
+            以下の形式の JSON のみを返してください。
+
+            {
+              "category": string,
+              "desc": string
+            }
+            `
           },
         ],
       },
@@ -38,16 +55,15 @@ export const action: ActionFunction = async ({ request }) => {
           {
             type: "text",
             text: `
-            以下の情報をもとに、このスポットの情報を出力してください。
+            以下をもとに、このスポットの情報を出力してください。
             
             ・スポット名: ${spot}
             ・緯度: ${latitude}
             ・経度: ${longitude}
             
-            出力形式は以下に従ってください：
-
-            ジャンル: （一言で）
-            概要: （端的に場所の魅力と特徴を説明）
+            以下を出力すること。
+            ・category: （一言で）
+            ・desc: （端的に場所の魅力と特徴を説明）
             `,
           },
         ],

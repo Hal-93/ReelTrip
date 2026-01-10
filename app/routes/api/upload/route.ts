@@ -18,13 +18,22 @@ export async function action({ request }: ActionFunctionArgs) {
     const timestamp = Date.now();
     const objectName = `${timestamp}_${fileName}`;
 
-    const lat = formData.get("lat");
-    const lng = formData.get("lng");
+    const lat = Number(formData.get("lat"));
+    const lng = Number(formData.get("lng"));
     const width = formData.get("width");
     const height = formData.get("height");
     const date = formData.get("date");
     const price = formData.get("price");
     const genre = formData.get("genre");
+    const spotName = formData.get("spot");
+
+    if (!spotName || typeof spotName !== "string" || !spotName.trim()) {
+      return Response.json(
+        { message: "スポット名は必須項目です。" },
+        { status: 400 },
+      );
+    }
+
     let mappedGenre:
       | "None"
       | "Gourmet"
@@ -56,6 +65,46 @@ export async function action({ request }: ActionFunctionArgs) {
       );
     }
 
+    const aiForm = new FormData();
+    aiForm.append("spot", spotName);
+    aiForm.append("lat", String(lat));
+    aiForm.append("lng", String(lng));
+
+    const aiRes = await fetch(
+      new URL("/api/ai2", request.url),
+      {
+        method: "POST",
+        body: aiForm,
+      },
+    );
+
+    if (!aiRes.ok) {
+      console.error("AI2での解析に失敗しました")
+      return Response.json(
+        { status: 500 },
+      );
+    }
+
+    const aiJson = await aiRes.json();
+
+    let category: string;
+    let description: string;
+
+    try {
+      const parsed =
+        typeof aiJson.result === "string"
+          ? JSON.parse(aiJson.result)
+          : aiJson.result;
+
+      category = String(parsed.category);
+      description = String(parsed.desc);
+    } catch {
+      console.error("AI2での解析に失敗しました")
+      return Response.json(
+        { status: 500 }
+      );
+    }
+
     await uploadFile(file, objectName);
 
     const downloadLink = `/api/files/${objectName}`;
@@ -67,8 +116,11 @@ export async function action({ request }: ActionFunctionArgs) {
       pictureResult = await createPicture({
         userId,
         fileId: result.id,
-        lat: Number(lat),
-        lng: Number(lng),
+        spotName,
+        category,
+        description,
+        lat,
+        lng,
         width: Number(width),
         height: Number(height),
         date: String(date),
@@ -76,16 +128,15 @@ export async function action({ request }: ActionFunctionArgs) {
         genre: mappedGenre,
       });
     } catch (error) {
-      console.error(error);
       return Response.json(
-        { message: "画像登録に失敗しました。" },
+        { message: "画像登録に失敗しました。" + error },
         { status: 500 },
       );
     }
 
     return Response.json({ file: result, picture: pictureResult });
   } catch (error) {
-    console.error(error);
+    console.log(error);
     return { status: 500 };
   }
 }

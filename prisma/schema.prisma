@@ -53,6 +53,11 @@ model Picture {
 
   genre  Genre   @default(None)
 
+  spotName  String
+
+  description String
+  category  String
+
   fileId String
   file   File   @relation(fields: [fileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId String

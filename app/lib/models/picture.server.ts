@@ -4,6 +4,9 @@ import type { Genre, Picture } from "@prisma/client";
 type CreatePictureParams = {
   userId: string;
   fileId: string;
+  spotName: string;
+  category: string;
+  description: string;
   lat: number;
   lng: number;
   width: number;
@@ -16,8 +19,20 @@ type CreatePictureParams = {
 
 
 export async function createPicture(params: CreatePictureParams) {
-  const { userId, fileId, lat, lng, width, height, date, price, genre } =
-    params;
+  const {
+    userId,
+    fileId,
+    spotName,
+    category,
+    description,
+    lat,
+    lng,
+    width,
+    height,
+    date,
+    price,
+    genre,
+  } = params;
 
   try {
     return await prisma.picture.create({
@@ -25,6 +40,9 @@ export async function createPicture(params: CreatePictureParams) {
         createdAt: new Date(),
         userId,
         fileId,
+        spotName,
+        category,
+        description,
         lat,
         lng,
         width,
