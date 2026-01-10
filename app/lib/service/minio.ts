@@ -197,3 +197,26 @@ export async function getRootObjects(): Promise<string[]> {
     throw err;
   }
 }
+
+export async function getPresignedVideoUrl(
+  objectName: string,
+  expiresSeconds: number = 60 * 10, // 10 minutes
+): Promise<string> {
+  try {
+    const exists = await minioClient.bucketExists(bucket);
+    if (!exists) {
+      throw new Error(`Bucket "${bucket}" does not exist.`);
+    }
+
+    const url = await minioClient.presignedGetObject(
+      bucket,
+      objectName,
+      expiresSeconds,
+    );
+
+    return url;
+  } catch (err) {
+    console.error("Error generating presigned video URL:", err);
+    throw err;
+  }
+}

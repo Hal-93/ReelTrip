@@ -1,4 +1,6 @@
-import { useLoaderData, useNavigate } from "react-router"; // ✅ useNavigate を追加
+import { getUser } from "~/lib/models/auth.server";
+import { getUserReelLocations } from "~/lib/models/reel.server";
+import { useNavigate, useLoaderData } from "react-router";
 import { useEffect, useRef, useState } from "react";
 import "mapbox-gl/dist/mapbox-gl.css";
 import mapboxgl from "mapbox-gl";
@@ -6,8 +8,7 @@ import mapboxgl from "mapbox-gl";
 import { DrawerDemo } from "~/components/map/mapfooter";
 import { MapHeader } from "~/components/map/mapheader";
 import TaskBar from "~/components/taskbar/taskbar";
-
-/* ================= MarkerWithPopup ================= */
+import { Button } from "~/components/ui/button";
 
 type MarkerWithPopupProps = {
   map: mapboxgl.Map | null;
@@ -34,25 +35,56 @@ export function MarkerWithPopup({
     const popupContainer = document.createElement("div");
     popupContainer.className = "popup-content";
     popupContainer.style.cursor = "pointer";
-    popupContainer.innerHTML = `
-      <h4 style="margin:0 0 4px 0; font-size:14px;">${title}</h4>
-      <img src="${image}" style="width:100%; max-width:250px; height:auto; border-radius:6px; display:block;" />
-    `;
+
+    const renderPopup = (size: number) => {
+      popupContainer.innerHTML = `
+        <div style="
+          width:${size}px;
+          height:${size}px;
+          overflow:hidden;
+          border-radius:10px;
+        ">
+          <img 
+            src="${image}" 
+            style="
+              width:100%;
+              height:100%;
+              object-fit:cover;
+              display:block;
+            " 
+          />
+        </div>
+      `;
+    };
+
+    renderPopup(120);
 
     const popup = new mapboxgl.Popup({
       closeButton: false,
       closeOnClick: false,
-      offset: 0,
-      anchor: "bottom",
+      offset: 18,
     })
       .setLngLat(coordinates)
       .setDOMContent(popupContainer);
 
+    const marker = new mapboxgl.Marker({ color: "#ff3333" })
+      .setLngLat(coordinates)
+      .addTo(map);
+
     const handleZoom = () => {
       const zoom = map.getZoom();
+
+      let size = 100;
+      if (zoom >= 14) size = 140;
+      else if (zoom >= 12) size = 120;
+
+      renderPopup(size);
+
       if (zoom < 11) {
+        marker.getElement().style.display = "block";
         popup.remove();
       } else {
+        marker.getElement().style.display = "none";
         if (!popup.isOpen()) popup.addTo(map);
       }
     };
@@ -63,21 +95,22 @@ export function MarkerWithPopup({
     };
 
     map.on("zoom", handleZoom);
+    marker.getElement().addEventListener("click", handleClick);
     popupContainer.addEventListener("click", handleClick);
 
     handleZoom();
 
     return () => {
       map.off("zoom", handleZoom);
+      marker.remove();
       popup.remove();
+      marker.getElement().removeEventListener("click", handleClick);
       popupContainer.removeEventListener("click", handleClick);
     };
   }, [map, coordinates, title, image, onPopupClick]);
 
   return null;
 }
-
-/* ================= Remix ================= */
 
 export const links = () => [
   {
@@ -86,26 +119,50 @@ export const links = () => [
   },
 ];
 
-export async function loader() {
-  return { token: process.env.MAPBOX_API ?? "" };
-}
+export async function loader({ request }: { request: Request }) {
+  const token = process.env.MAPBOX_API ?? "";
 
-type MapPlace = {
-  id: number;
-  title: string;
-  coordinates: [number, number];
-  image: string;
-};
+  const user = await getUser(request);
+  if (!user) {
+    return { token, spots: [] };
+  }
+
+  const locations = await getUserReelLocations({ userId: user.id });
+
+  const spots = locations
+    ? await Promise.all(
+        locations.map(async (p) => {
+          const res = await fetch(
+            `https://api.mapbox.com/geocoding/v5/mapbox.places/${p.lng},${p.lat}.json?access_token=${token}`,
+          );
+          const data = await res.json();
+
+          const placeName =
+            data.features?.[0]?.text ??
+            data.features?.[0]?.place_name ??
+            "Spot";
+
+          return {
+            id: p.id,
+            title: placeName,
+            coordinates: [p.lng, p.lat] as [number, number],
+            image: p.image,
+          };
+        }),
+      )
+    : [];
+
+  return { token, spots };
+}
 
 type TravelMode = "car" | "walk" | "spot";
 
-/* ================= Page ================= */
-
 export default function MapPage() {
-  const { token } = useLoaderData<typeof loader>();
-  const navigate = useNavigate(); // ✅ navigate を初期化
+  const { token, spots } = useLoaderData<typeof loader>();
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
+
+  const navigate = useNavigate();
 
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [pinLocation, setPinLocation] = useState<[number, number] | null>(null);
@@ -116,20 +173,6 @@ export default function MapPage() {
   const [duration, setDuration] = useState<string | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [travelMode, setTravelMode] = useState<TravelMode>("car");
-
-  // ✅ 追加: リール画面へ戻る処理
-  const handleBack = () => {
-    navigate("/reels/preview");
-  };
-
-  const samplePlaces: MapPlace[] = [
-    {
-      id: 1,
-      title: "INIAD 東洋大学 情報連携学部",
-      coordinates: [139.720204, 35.783899],
-      image: "https://picsum.photos/400/300",
-    },
-  ];
 
   const handlePopupClick = async (
     coordinates: [number, number],
@@ -147,6 +190,10 @@ export default function MapPage() {
 
     setTravelMode("car");
     setIsDrawerOpen(true);
+  };
+
+  const handleToReel = () => {
+    navigate("/reels/preview");
   };
 
   useEffect(() => {
@@ -203,17 +250,33 @@ export default function MapPage() {
 
   return (
     <div style={{ height: "100vh", width: "100vw", position: "relative", overflow: "hidden" }}>
-      {/* ✅ onBack を渡す */}
-      <MapHeader
-        currentPlace={currentPlace ?? undefined}
-        destinationPlace={destinationPlace ?? undefined}
-        onBack={handleBack}
-      />
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 20 }}>
+        <MapHeader
+          currentPlace={currentPlace ?? undefined}
+          destinationPlace={destinationPlace ?? undefined}
+        />
+      </div>
+
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex rounded-full bg-black/60 backdrop-blur">
+        <Button
+          variant="ghost"
+          className="rounded-full px-4 text-white"
+          onClick={handleToReel}
+        >
+          リール
+        </Button>
+        <Button
+          variant="ghost"
+          className="rounded-full px-4 text-white/70"
+        >
+          マップ
+        </Button>
+      </div>
 
       <div ref={mapContainerRef} style={{ width: "100%", height: "100%" }} />
 
       {mapRef.current &&
-        samplePlaces.map((place) => (
+        spots.map((place) => (
           <MarkerWithPopup
             key={place.id}
             map={mapRef.current}

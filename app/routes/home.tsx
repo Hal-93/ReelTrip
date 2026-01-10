@@ -123,7 +123,7 @@ export default function Home() {
           animate={{ opacity: 1 }}
           transition={{ delay: 1.2 }}
         >
-          <Link to="/signup">
+          <Link to="/login">
             <button className="mt-10 px-10 py-4 bg-white text-black font-semibold rounded-full shadow-lg hover:bg-gray-200 transition">
               今すぐ始める
             </button>
@@ -242,7 +242,7 @@ export default function Home() {
         >
           あなたの旅を、リールにしよう。
         </motion.h3>
-        <Link to="/signup">
+        <Link to="/login">
           <button className="px-10 py-4 bg-blue-500 hover:bg-blue-600 rounded-full text-lg font-medium shadow-md transition">
             無料で始める
           </button>

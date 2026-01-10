@@ -29,15 +29,13 @@ model User {
   avatar      String?
   location    String      @default("")
 
-  //ホームに表示させるリール
-  reelId String? @unique
-  reel   Reel? @relation(fields: [reelId], references: [id])
+  files       File[]
+  pictures    Picture[]
+  favorite    Genre       @default(None)
 
-  files    File[]
-  pictures Picture[]
-  favorite Genre      @default(None)
+  reel        Reel?
 
-  createdAt DateTime  @default(now())
+  createdAt   DateTime    @default(now())
 }
 
 model Picture {
@@ -68,12 +66,14 @@ model Reel {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
 
-  user   User?  @relation
-  userId String?
+  userId String  @unique
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  videoFileId String
+  videoFile   File   @relation(fields: [videoFileId], references: [id])
 
   pictures Picture[]
-
-  caption String?
+  caption  String?
 }
 
 model File {
@@ -88,4 +88,6 @@ model File {
   userId   String
   user     User      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   pictures Picture[]
+
+  reels Reel[]
 }

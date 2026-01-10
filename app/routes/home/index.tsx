@@ -69,7 +69,13 @@ export default function Home() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-4 gap-[1px] bg-white">
-                {files.map((file) => (
+                {files
+                  .filter(
+                    (file) =>
+                      !file.fileName?.toLowerCase().endsWith(".mp4") &&
+                      !file.downloadLink?.toLowerCase().endsWith(".mp4"),
+                  )
+                  .map((file) => (
                   <Dialog
                     key={file.id}
                     open={selectedImage?.id === file.id}
