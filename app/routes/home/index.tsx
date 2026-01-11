@@ -41,7 +41,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Toaster />
-      <TaskBar/>
+      <TaskBar user={user} filesCount={files.length}/>
       <header className="flex items-center justify-between px-4 py-3 border-b lg:hidden">
         <img src="/icon.png" width={32} height={32} />
         <Sheet>
@@ -57,6 +57,14 @@ export default function Home() {
             <UserSidebar user={user} filesCount={files.length} />
           </SheetContent>
         </Sheet>
+        {/* <div className="h-10 w-10">
+          <Avatar className="h-10 w-10">
+            <AvatarImage src={user.avatar || ""} />
+            <AvatarFallback>
+              {user.name?.slice(0, 2)?.toUpperCase() ?? "US"}
+            </AvatarFallback>
+          </Avatar>
+        </div> */}
       </header>
       <main className="flex-1 max-w-5xl mx-auto w-full py-6 px-4 flex gap-6">
         <div className="w-full lg:w-2/3 space-y-4">
@@ -149,7 +157,6 @@ export default function Home() {
       >
         <Plus />
       </Link> */}
-      <TaskBar />
     </div>
   );
 }
