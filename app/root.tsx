@@ -54,13 +54,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   const { user, filesCount } = useLoaderData<typeof loader>();
+  const isMapPage = location.pathname === "/map";
 
   return (
     <UserContext.Provider value={{ user, filesCount }}>
       <div className="min-h-screen flex flex-col">
         <Outlet /> 
         {/* どのページにいてもTaskBarが表示されるようになる */}
-        {user && <TaskBar />} 
+        {user && !isMapPage && <TaskBar />}
       </div>
     </UserContext.Provider>
   );

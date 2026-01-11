@@ -31,10 +31,13 @@ export default function Favorites() {
   ];
   return (
     <>
-      <div className="min-h-screen flex flex-col bg-gradient-to-b from-cyan-700 to-blue-900">
-        <div className="h-12" /> {/* 上部スペース */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 text-white">
-          <h1 className="text-3xl font-bold mb-2 p-4">スポット</h1>
+      <div className="min-h-screen flex flex-col bg-gradient-to-b from-[#1b73ce] via-blue-800 to-[#023c73]">
+        <div className="p-4 space-y-3 pb-32">
+          
+          <header className="flex items-center justify-center px-4 py-3 lg:hidden">
+          <h1 className="text-2xl font-bold  text-white mb-2 p-4">お気に入りスポット</h1>
+          </header>
+
           {likedPosts.map((post) => (
             <div
               key={post.id}
@@ -42,7 +45,7 @@ export default function Favorites() {
             >
               {/* 左側の画像プレースホルダーとテキスト */}
               <div className="flex items-center space-x-6">
-                <div className="w-24 h-24 bg-gray-300 rounded-md" />
+                <div className="w-24 h-24 bg-white/20 rounded-md" />
                 <div>
                   <p className="font-bold text-white text-xl">{post.name}</p>
                   <p className="text-base text-white/80">{post.address}</p>
@@ -56,7 +59,6 @@ export default function Favorites() {
           ))}
         </div>
       </div>
-      <TaskBar />
     </>
   );
 }

@@ -10,7 +10,6 @@ import { UserSidebar } from "~/components/basic/usermenu";
 import { getFilesByUser } from "~/lib/models/file.server";
 import { toast } from "sonner";
 import { Toaster } from "sonner";
-import TaskBar from "~/components/taskbar/taskbar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCamera } from "@fortawesome/free-solid-svg-icons";
 
@@ -39,10 +38,13 @@ export default function Home() {
   }, [searchParams]);
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col bg-gradient-to-b from-[#1b73ce] via-blue-800 to-[#023c73]">
       <Toaster />
-      <header className="flex items-center justify-between px-4 py-3 border-b lg:hidden">
-        <img src="/icon.png" width={32} height={32} />
+      <header className="flex items-center justify-between px-4 py-3  lg:hidden ">
+        <div className="flex items-center gap-2">
+        <img src="/icon.png" width={38} height={38} />
+        <h1 className="text-xl font-bold text-white">Reel Trip</h1>
+        </div>
         {/* <Sheet>
           <SheetTrigger asChild>
             <Avatar className="h-10 w-10">
@@ -67,7 +69,7 @@ export default function Home() {
       </header>
       <main className="flex-1 max-w-5xl mx-auto w-full py-6 px-4 flex gap-6">
         <div className="w-full lg:w-2/3 space-y-4">
-          <Card>
+          <Card className="bg-[#ffffff]">
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 あなたの投稿

@@ -441,9 +441,10 @@ export default function Upload() {
 
   return (
     <>
-    <TaskBar/>
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6">
-      <h2 className="text-3xl font-bold mb-8 text-gray-800">アップロード</h2>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-[#1b73ce] via-blue-800 to-[#023c73] p-6">
+      <header className="flex items-center justify-between px-4 py-3 lg:hidden ">
+        <h2 className="text-3xl font-bold mb-8 text-white">アップロード</h2>
+      </header>
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-md bg-white p-6 rounded-sm shadow-md"
@@ -624,7 +625,6 @@ export default function Upload() {
           )}
         </DialogContent>
       </Dialog>
-      <TaskBar />
     </div>
     </>
   );
