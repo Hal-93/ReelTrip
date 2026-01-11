@@ -1,21 +1,19 @@
-import { ArrowLeft, Circle, MapPin } from "lucide-react";
+import { Circle, MapPin } from "lucide-react";
 
 type MapHeaderProps = {
   currentPlace?: string; // 現在地住所
   destinationPlace?: string; // 目的地住所
-  onBack?: () => void; // ✅ 追加: 戻るボタンが押された時の処理
 };
 
-export function MapHeader({ currentPlace, destinationPlace, onBack }: MapHeaderProps) {
+export function MapHeader({ currentPlace, destinationPlace }: MapHeaderProps) {
   return (
     <div
-      className="flex items-center pt-2"
+      // 矢印を削除したため、justify-center で中央寄せにしています
+      className="flex items-center justify-center pt-2"
       style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 10 }}
     >
-      <ArrowLeft
-        className="text-[#004f83] h-8 w-1/12 cursor-pointer"
-        onClick={onBack} // ✅ navigate(-1) から onBack に変更
-      />
+      {/* ここにあった ArrowLeft を削除しました */}
+      
       <div className="bg-[#004f83d3] bg-opacity-80 p-4 rounded-xl shadow-lg w-10/12">
         <div className="flex items-center space-x-3">
           <div className="flex-1 flex flex-col space-y-2">
@@ -23,7 +21,7 @@ export function MapHeader({ currentPlace, destinationPlace, onBack }: MapHeaderP
             <div className="flex items-center space-x-3">
               <div className="relative flex items-center justify-center">
                 <Circle className="h-6 w-6 text-sky-500" />
-                <Circle className="absolute h-2.5 w-2.5  fill-sky-500 stroke-0" />
+                <Circle className="absolute h-2.5 w-2.5 fill-sky-500 stroke-0" />
               </div>
               <div className="flex-1">
                 <span className="text-white text-lg font-medium">
