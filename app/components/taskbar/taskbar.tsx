@@ -11,13 +11,15 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { Sheet, SheetContent } from "~/components/ui/sheet";
 import { UserSidebar } from "~/components/basic/usermenu";
+import { useUser } from "~/lib/context/user-context";
 
 interface TaskBarProps {
   user?: any;
   filesCount?: number;
 }
 
-const TaskBar: React.FC<TaskBarProps> = ({ user, filesCount = 0 }) => {
+const TaskBar: React.FC = () => {
+  const { user, filesCount } = useUser();
   const navigate = useNavigate();
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -65,17 +67,10 @@ const TaskBar: React.FC<TaskBarProps> = ({ user, filesCount = 0 }) => {
     </div>
 
     <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
-  <SheetContent side="left" className="w-80 p-4">
-    {/* userが存在する場合のみUserSidebarを表示 */}
-    {user ? (
-      <UserSidebar user={user} filesCount={filesCount} />
-    ) : (
-      <div className="flex items-center justify-center h-full">
-        <p>読み込み中...</p>
-      </div>
-    )}
-  </SheetContent>
-</Sheet>
+        <SheetContent side="left" className="w-80 p-4">
+          {user && <UserSidebar user={user} filesCount={filesCount} />}
+        </SheetContent>
+    </Sheet>
     </>
   );
 };
