@@ -265,14 +265,7 @@ export default function MapPage() {
 
   return (
     <div style={{ height: "100vh", width: "100vw", position: "relative", overflow: "hidden" }}>
-      <div style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 20 }}>
-        <MapHeader
-          currentPlace={currentPlace ?? undefined}
-          destinationPlace={destinationPlace ?? undefined}
-        />
-      </div>
-
-      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex rounded-full bg-black/60 backdrop-blur">
+      <div className="absolute top-0.25 left-1/2 -translate-x-1/2 z-30 flex rounded-full bg-black/60 backdrop-blur">
         <Button
           variant="ghost"
           className="rounded-full px-4 text-white"
@@ -286,6 +279,13 @@ export default function MapPage() {
         >
           マップ
         </Button>
+      </div>
+
+      <div style={{ position: "absolute", top: "30px", left: 0, right: 0, zIndex: 20 }}>
+        <MapHeader
+          currentPlace={currentPlace ?? undefined}
+          destinationPlace={destinationPlace ?? undefined}
+        />
       </div>
 
       <div ref={mapContainerRef} style={{ width: "100%", height: "100%" }} />
