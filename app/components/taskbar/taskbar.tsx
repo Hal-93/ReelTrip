@@ -23,10 +23,10 @@ const TaskBar: React.FC<TaskBarProps> = ({ user, filesCount = 0 }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const items = [
-    { id: "home", label: "ホーム", path: "/home", icon: <FontAwesomeIcon icon={faHouse} /> },
     { id: "reels", label: "リール探索", path: "/reels/preview", icon: <FontAwesomeIcon icon={faPlayCircle} /> },
-    { id: "upload", label: "投稿", path: "/upload", icon: <FontAwesomeIcon icon={faCamera} /> },
     { id: "favorites", label: "いいね", path: "/favorites", icon: <FontAwesomeIcon icon={faHeart} /> },
+    { id: "upload", label: "投稿", path: "/upload", icon: <FontAwesomeIcon icon={faCamera} /> },
+    { id: "home", label: "ホーム", path: "/home", icon: <FontAwesomeIcon icon={faHouse} /> },
     { id: "mypage", label: "マイページ", path: "#", icon: <FontAwesomeIcon icon={faUser} /> },
   ];
 
