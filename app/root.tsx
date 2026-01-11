@@ -5,10 +5,21 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLoaderData,
 } from "react-router";
+import { getUser } from "~/lib/models/auth.server";
+import { getFilesByUser } from "~/lib/models/file.server";
+import { UserContext } from "~/lib/context/user-context";
+import TaskBar from "~/components/taskbar/taskbar";
 
 import type { Route } from "./+types/root";
 import "./app.css";
+
+export async function loader({ request }: Route.LoaderArgs) {
+  const user = await getUser(request);
+  const files = user ? await getFilesByUser(user.id) : [];
+  return { user, filesCount: files.length };
+}
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -42,7 +53,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  return <Outlet />;
+  const { user, filesCount } = useLoaderData<typeof loader>();
+
+  return (
+    <UserContext.Provider value={{ user, filesCount }}>
+      <div className="min-h-screen flex flex-col">
+        <Outlet /> 
+        {/* どのページにいてもTaskBarが表示されるようになる */}
+        {user && <TaskBar />} 
+      </div>
+    </UserContext.Provider>
+  );
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
