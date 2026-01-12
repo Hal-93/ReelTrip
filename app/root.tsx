@@ -6,6 +6,7 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
+  useLocation,
 } from "react-router";
 import { getUser } from "~/lib/models/auth.server";
 import { getFilesByUser } from "~/lib/models/file.server";
@@ -54,6 +55,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   const { user, filesCount } = useLoaderData<typeof loader>();
+  const location = useLocation();
   const isMapPage = location.pathname === "/map";
 
   return (
