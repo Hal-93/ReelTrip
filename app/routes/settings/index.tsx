@@ -3,6 +3,12 @@ import { redirect } from "react-router";
 import { getUser } from "~/lib/models/auth.server";
 import { getUserById, updateUser } from "~/lib/models/user.server";
 import { Form, useLoaderData } from "react-router";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faAngleDoubleLeft,
+} from "@fortawesome/free-solid-svg-icons";
+import { Link } from "react-router";
+
 
 export async function loader({ request }: { request: Request }) {
   const user = await getUser(request);
@@ -37,6 +43,7 @@ export default function ReUserSettingsPage() {
   const [nickname, setNickname] = useState(user.name || "");
   const [email, setEmail] = useState(user.email || "");
   const [prefecture, setPrefecture] = useState(user.location || "");
+  
 
   return (
     <Form
@@ -44,6 +51,10 @@ export default function ReUserSettingsPage() {
       className="font-sans flex flex-col items-center min-h-screen p-8 sm:p-20 gap-6
                     bg-gradient-to-b from-blue-900 via-blue-800 to-blue-700 text-white"
     >
+      <Link 
+    to="/home" className="absolute top-4 left-4 sm:top-8 sm:left-8">
+       <FontAwesomeIcon icon={faAngleDoubleLeft} path="/home" className="text-[40px] text-white-500"/>
+      </Link>
       {/* ヘッダー */}
       <div className="flex flex-col items-center gap-2">
         <div className="w-16 h-16 relative">

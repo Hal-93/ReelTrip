@@ -23,7 +23,7 @@ export default function ReelsPage() {
   return (
     <div
       className="font-sans flex flex-col items-center justify-center min-h-screen p-8 sm:p-20
-                    bg-gradient-to-b from-blue-900 via-blue-800 to-blue-700 text-white"
+                    bg-gradient-to-b bg-gradient-to-b from-[#1b73ce] via-blue-800 to-[#023c73] text-white"
     >
 
       <div className="mb-8 w-full max-w-md">
@@ -118,7 +118,6 @@ export default function ReelsPage() {
         </div>
       )}
 
-      <TaskBar />
     </div>
   );
 }

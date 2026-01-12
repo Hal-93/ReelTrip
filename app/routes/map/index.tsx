@@ -322,9 +322,9 @@ export default function MapPage() {
         </div>
       )}
 
-      <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 50 }}>
+      {/* <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 50 }}>
         <TaskBar />
-      </div>
+      </div> */}
     </div>
   );
 }
