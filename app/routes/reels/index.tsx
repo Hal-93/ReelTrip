@@ -74,7 +74,7 @@ export default function ReelsPage() {
             return;
           }
 
-          const resVideo = await fetch("http://127.0.0.1:8000/make-video", {
+          const resVideo = await fetch("/py/make-video", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
