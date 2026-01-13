@@ -44,15 +44,16 @@ const TaskBar: React.FC = () => {
 
   return (
     <>
-    <div className="fixed bottom-4 inset-x-0 mx-auto w-[92%] md:w-max max-w-3xl py-2 px-4 md:px-10 bg-white/30 shadow-2xl rounded-[2rem] z-50 backdrop-blur-lg border border-white/20 text-gray-900">
-      <div className="flex justify-around md:justify-center items-center gap-x-2 md:gap-x-8 w-full">
+    <div className="fixed bottom-4 inset-x-0 mx-auto w-[94%] max-w-3xl md:px-10 z-50 text-gray-900">
+      <nav className="bg-white/30 backdrop-blur-lg border border-white/20 shadow-2xl rounded-[2rem] px-4 py-2 md:px-6">
+      <div className="flex justify-between items-center w-full">
         {items.map((item) => (
           <TaskBarItem
             key={item.id}
             label={item.label}
             icon={
               item.id === "mypage" ? (
-                avatarUrl ? (
+                  avatarUrl ? (
                   <img
                     src={avatarUrl}
                     alt="avatar"
@@ -68,7 +69,7 @@ const TaskBar: React.FC = () => {
             isActive={item.id === "mypage" ? isSidebarOpen : activeTab === item.id}
             onClick={() => {
                 if (item.id === "mypage") {
-                  setIsSidebarOpen(true); // マイページならサイドバーを開く
+                  setIsSidebarOpen(true);
                 } else {
                   navigate(item.path);
                 }
@@ -76,6 +77,7 @@ const TaskBar: React.FC = () => {
           />
         ))}
       </div>
+      </nav>
     </div>
 
     <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>

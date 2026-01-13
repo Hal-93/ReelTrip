@@ -14,13 +14,13 @@ const TaskBarItem: React.FC<TaskBarItemProps> = ({
   onClick,
 }) => {
   const baseClasses =
-    "flex flex-1 flex-col items-center justify-center p-2 cursor-pointer transition-all h-16 min-w-[64px]";
+    "flex flex-1 flex-col items-center justify-center py-1 px-1 cursor-pointer min-w-0";
 
   const activeColor = isActive
-    ? "text-blue-500 scale-110"
+    ? "text-blue-500"
     : "text-gray-900 hover:text-white";
 
-  const highlightClass = isActive ? "rounded-xl bg-gray-600/50" : "";
+  const highlightClass = isActive ? "bg-blue-50/40 rounded-2xl" : "";
 
   return (
     <div
