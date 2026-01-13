@@ -46,8 +46,8 @@ const TaskBar: React.FC = () => {
 
   return (
     <>
-    <div className="fixed bottom-4 w-fit mx-auto inset-x-0 py-3 px-16 bg-white/30 shadow-lx rounded-full z-50 backdrop-blur-md border border-white/20 text-gray-900">
-      <div className="flex justify-center gap-x-10 w-full">
+    <div className="fixed bottom-4 inset-x-0 mx-auto w-[92%] md:w-max max-w-3xl py-2 px-4 md:px-10 bg-white/30 shadow-2xl rounded-[2rem] z-50 backdrop-blur-lg border border-white/20 text-gray-900">
+      <div className="flex justify-around md:justify-center items-center gap-x-2 md:gap-x-8 w-full">
         {items.map((item) => (
           <TaskBarItem
             key={item.id}
