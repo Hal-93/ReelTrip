@@ -90,7 +90,7 @@ export default function Home() {
     },
   ];
   return (
-    <div className="relative min-h-screen w-full overflow-hidden bg-black text-white font-sans">
+    <div className="relative min-h-screen w-full overflow-hidden bg-[#023c73] text-white font-sans">
       <div className="absolute inset-0">
         <SparklesCore
           background="transparent"
