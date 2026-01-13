@@ -1,5 +1,4 @@
 import { redirect, useNavigate, useLoaderData, type LoaderFunctionArgs } from "react-router";
-import TaskBar from "~/components/taskbar/taskbar";
 import { useState } from "react";
 import { getUser } from "~/lib/models/auth.server";
 
