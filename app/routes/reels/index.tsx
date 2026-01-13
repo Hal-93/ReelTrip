@@ -49,6 +49,7 @@ export default function ReelsPage() {
 
       <button
         onClick={async () => {
+          if (loading) return;
           setLoading(true);
 
           let fetchedFiles: string[] = [];
@@ -57,8 +58,15 @@ export default function ReelsPage() {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               credentials: "include",
+              cache: "no-store",
               body: JSON.stringify({ preference, userId: user.id }),
             });
+
+            if (!res.ok) {
+              setLoading(false);
+              alert("画像の選定に失敗しました");
+              return;
+            }
 
             const data = await res.json();
             if (Array.isArray(data.keys)) {
@@ -84,8 +92,13 @@ export default function ReelsPage() {
             }),
           });
 
+          if (!resVideo.ok) {
+            setLoading(false);
+            alert("動画生成に失敗しました");
+            return;
+          }
+
           const dataVideo = await resVideo.json();
-          console.log("data:", dataVideo);
 
           await fetch("/api/complete", {
             method: "POST",
@@ -102,7 +115,8 @@ export default function ReelsPage() {
 
           navigate("/reels/preview");
         }}
-        className="bg-blue-500 text-white px-8 py-4 rounded-lg hover:bg-blue-600"
+        disabled={loading}
+        className={`bg-blue-500 text-white px-8 py-4 rounded-lg hover:bg-blue-600 ${loading ? "opacity-60 cursor-not-allowed" : ""}`}
       >
         リール動画を生成（あと∞回）
       </button>
