@@ -9,7 +9,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "~/components/ui/dialog";
-import TaskBar from "~/components/taskbar/taskbar";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await getUser(request);
