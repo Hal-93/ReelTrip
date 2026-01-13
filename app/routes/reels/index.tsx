@@ -1,4 +1,4 @@
-import { redirect, useNavigate, useActionData, type LoaderFunctionArgs } from "react-router";
+import { redirect, useNavigate, useActionData, Form, type LoaderFunctionArgs } from "react-router";
 import { useState, useEffect } from "react";
 import { getUser } from "~/lib/models/auth.server";
 
@@ -23,7 +23,6 @@ export default function ReelsPage() {
   const navigate = useNavigate();
   const actionData = useActionData() as { keys?: string[] } | undefined;
   const [loading, setLoading] = useState(false);
-  const [files, setFiles] = useState<string[]>([]);
   const [preference, setPreference] = useState<"見る" | "遊ぶ" | "食べる">("見る");
 
   useEffect(() => {
@@ -80,7 +79,7 @@ export default function ReelsPage() {
         </div>
       </div>
 
-      <form method="post">
+      <Form method="post">
         <input type="hidden" name="preference" value={preference} />
         <button
           type="submit"
@@ -89,7 +88,7 @@ export default function ReelsPage() {
         >
           リール動画を生成（あと∞回）
         </button>
-      </form>
+      </Form>
 
       <p className="text-xs text-gray-300 mt-2 text-center">
         リール動画生成可能回数は0:00にリセットされます
