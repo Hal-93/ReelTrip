@@ -3,7 +3,6 @@ import { getUser } from "~/lib/models/auth.server";
 import type { LoaderFunctionArgs } from "react-router";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { Sheet, SheetContent, SheetTrigger } from "~/components/ui/sheet";
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogTrigger } from "~/components/ui/dialog";
 import { UserSidebar } from "~/components/basic/usermenu";

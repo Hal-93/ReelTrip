@@ -7,7 +7,6 @@ import mapboxgl from "mapbox-gl";
 
 import { DrawerDemo } from "~/components/map/mapfooter";
 import { MapHeader } from "~/components/map/mapheader";
-import TaskBar from "~/components/taskbar/taskbar";
 import { Button } from "~/components/ui/button";
 
 type MarkerWithPopupProps = {
