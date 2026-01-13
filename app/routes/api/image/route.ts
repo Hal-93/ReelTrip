@@ -1,6 +1,10 @@
-import type { ActionFunctionArgs } from "react-router";
+import type { ActionFunctionArgs, LoaderFunction } from "react-router";
 import { getUser } from "~/lib/models/auth.server";
 import { generateMakeVideoKeys } from "~/lib/models/reel.server";
+
+export const loader: LoaderFunction = async () => {
+  return new Response(null, { status: 204 });
+};
 
 export async function action({ request }: ActionFunctionArgs) {
   const user = await getUser(request);
