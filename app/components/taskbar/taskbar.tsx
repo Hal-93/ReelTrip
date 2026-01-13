@@ -13,10 +13,6 @@ import { Sheet, SheetContent } from "~/components/ui/sheet";
 import { UserSidebar } from "~/components/basic/usermenu";
 import { useUser } from "~/lib/context/user-context";
 
-interface TaskBarProps {
-  user?: any;
-  filesCount?: number;
-}
 
 const TaskBar: React.FC = () => {
   const { user, filesCount } = useUser();
@@ -24,12 +20,14 @@ const TaskBar: React.FC = () => {
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+  const avatarUrl = user?.avatar || "";
+
   const items = [
-    { id: "reels", label: "リール探索", path: "/reels/preview", icon: <FontAwesomeIcon icon={faPlayCircle} /> },
+    { id: "reels", label: "探索", path: "/reels/preview", icon: <FontAwesomeIcon icon={faPlayCircle} /> },
     { id: "favorites", label: "いいね", path: "/favorites", icon: <FontAwesomeIcon icon={faHeart} /> },
     { id: "upload", label: "投稿", path: "/upload", icon: <FontAwesomeIcon icon={faCamera} /> },
     { id: "home", label: "ホーム", path: "/home", icon: <FontAwesomeIcon icon={faHouse} /> },
-    { id: "mypage", label: "マイページ", path: "#", icon: <FontAwesomeIcon icon={faUser} /> },
+    { id: "mypage", label: "マイページ", path: "#", icon: null },
   ];
 
   const pathname = location.pathname;
@@ -52,7 +50,21 @@ const TaskBar: React.FC = () => {
           <TaskBarItem
             key={item.id}
             label={item.label}
-            icon={item.icon}
+            icon={
+              item.id === "mypage" ? (
+                avatarUrl ? (
+                  <img
+                    src={avatarUrl}
+                    alt="avatar"
+                    className="h-8 w-8 rounded-full object-cover"
+                  />
+                ) : (
+                  <FontAwesomeIcon icon={faUser} />
+                )
+              ) : (
+                item.icon
+              )
+            }
             isActive={item.id === "mypage" ? isSidebarOpen : activeTab === item.id}
             onClick={() => {
                 if (item.id === "mypage") {

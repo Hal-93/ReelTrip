@@ -2,6 +2,7 @@ import { type ActionFunctionArgs } from "react-router";
 import { createFile } from "~/lib/models/file.server";
 import { createPicture } from "~/lib/models/picture.server";
 import { uploadFile } from "~/lib/service/minio";
+import { analyzeImageWithAI } from "~/lib/models/ai2.server";
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
@@ -65,41 +66,15 @@ export async function action({ request }: ActionFunctionArgs) {
       );
     }
 
-    const aiForm = new FormData();
-    aiForm.append("spot", spotName);
-    aiForm.append("lat", String(lat));
-    aiForm.append("lng", String(lng));
-
-    const aiRes = await fetch(
-      new URL("/api/ai2", request.url),
-      {
-        method: "POST",
-        body: aiForm,
-      },
-    );
-
-    if (!aiRes.ok) {
-      console.error("AI2での解析に失敗しました")
-      return Response.json(
-        { status: 500 },
-      );
-    }
-
-    const aiJson = await aiRes.json();
+    const aiResult = await analyzeImageWithAI(spotName, String(lat), String(lng));
 
     let category: string;
     let description: string;
 
     try {
-      const parsed =
-        typeof aiJson.result === "string"
-          ? JSON.parse(aiJson.result)
-          : aiJson.result;
-
-      category = String(parsed.category);
-      description = String(parsed.desc);
+      category = String(aiResult.category);
+      description = String(aiResult.desc);
     } catch {
-      console.error("AI2での解析に失敗しました")
       return Response.json(
         { status: 500 }
       );
