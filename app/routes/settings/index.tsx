@@ -8,6 +8,7 @@ import {
   faAngleDoubleLeft,
 } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 
 
 export async function loader({ request }: { request: Request }) {
@@ -46,26 +47,31 @@ export default function ReUserSettingsPage() {
   
 
   return (
+    <div className="min-h-screen bg-background flex flex-col bg-gradient-to-b from-[#1b73ce] via-blue-800 to-[#023c73]">
+          <header className="flex items-center justify-between px-4 py-3  lg:hidden ">
+            <div className="flex items-center gap-2">
+            <img src="/icon.png" width={38} height={38} />
+            <h1 className="text-xl font-bold text-white">Reel Trip</h1>
+            </div>
+            <div className="h-10 w-10">
+              <Avatar className="h-10 w-10">
+                <AvatarImage src={user.avatar || ""} />
+                <AvatarFallback>
+                  {user.name?.slice(0, 2)?.toUpperCase() ?? "US"}
+                </AvatarFallback>
+              </Avatar>
+            </div>
+          </header>
     <Form
       method="post"
-      className="font-sans flex flex-col items-center min-h-screen p-8 sm:p-20 gap-6
-                    bg-gradient-to-b from-blue-900 via-blue-800 to-blue-700 text-white"
+      className="font-sans flex flex-col items-center min-h-screen p-8 sm:p-20 gap-6 text-white"
     >
       <Link 
-    to="/home" className="absolute top-4 left-4 sm:top-8 sm:left-8">
-       <FontAwesomeIcon icon={faAngleDoubleLeft} path="/home" className="text-[40px] text-white-500"/>
+    to="/home" className="absolute top-20 left-4 sm:top-20 sm:left-6">
+       <FontAwesomeIcon icon={faAngleDoubleLeft} path="/home" className="text-xl md:text-2xl text-white-500"/>
       </Link>
-      {/* ヘッダー */}
       <div className="flex flex-col items-center gap-2">
-        <div className="w-16 h-16 relative">
-          {/*
-          <Image
-            src="/rounded_image 1.png"
-            alt="App Icon"
-            fill
-            style={{ objectFit: 'contain' }}
-          />
-          */}
+        <div className="w-10 h-10 relative">
         </div>
         <h1 className="text-3xl font-bold">ユーザー設定変更</h1>
       </div>
@@ -181,5 +187,6 @@ export default function ReUserSettingsPage() {
         設定を保存
       </button>
     </Form>
+    </div>
   );
 }
