@@ -2,7 +2,6 @@ import os
 import uuid
 import subprocess
 import io
-from datetime import timedelta
 from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 from minio import Minio
@@ -28,14 +27,6 @@ minio_internal = Minio(
     access_key=os.environ["MINIO_ACCESS_KEY"],
     secret_key=os.environ["MINIO_SECRET_KEY"],
     secure=False
-)
-
-# === MinIO public (browser → MinIO via Nginx) ===
-minio_public = Minio(
-    os.environ["MINIO_PUBLIC_ENDPOINT"],
-    access_key=os.environ["MINIO_ACCESS_KEY"],
-    secret_key=os.environ["MINIO_SECRET_KEY"],
-    secure=True
 )
 
 class VideoRequest(BaseModel):
@@ -105,12 +96,9 @@ def make_video(req: VideoRequest):
             length=len(video_bytes),
             content_type="video/mp4"
         )
-        presigned_url = minio_public.presigned_get_object(
-            os.environ["MINIO_BUCKET"],
-            output_key,
-            expires=timedelta(minutes=10)
-        )
-        return {"video_key": output_key, "video_url": presigned_url}
+        public_base = os.environ.get("MINIO_PUBLIC_BASE", "https://reeltrip.hal-93.dev/reeltrip")
+        public_url = f"{public_base}/{output_key}"
+        return {"video_key": output_key, "video_url": public_url}
 
     except Exception as e:
         return {"error": str(e)}
