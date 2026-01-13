@@ -77,6 +77,7 @@ export default function ReelsPage() {
           const resVideo = await fetch("/py/make-video", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
+            cache: "no-store",
             body: JSON.stringify({
               keys: fetchedFiles,
               preference,

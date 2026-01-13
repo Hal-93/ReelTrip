@@ -22,27 +22,28 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-client = Minio(
-    os.environ.get("MINIO_INTERNAL_ENDPOINT", os.environ["MINIO_ENDPOINT"]),
+# === MinIO internal (server → MinIO) ===
+minio_internal = Minio(
+    os.environ["MINIO_INTERNAL_ENDPOINT"],
     access_key=os.environ["MINIO_ACCESS_KEY"],
     secret_key=os.environ["MINIO_SECRET_KEY"],
-    secure=os.environ.get("USE_SSL", "false") == "true"
+    secure=False
 )
 
-# Override base URL for presigned URLs to use public host
-_public = os.environ.get("MINIO_PUBLIC_BASE_URL")
-if _public:
-    try:
-        client._base_url = _public
-    except Exception:
-        pass
+# === MinIO public (browser → MinIO via Nginx) ===
+minio_public = Minio(
+    os.environ["MINIO_PUBLIC_ENDPOINT"],
+    access_key=os.environ["MINIO_ACCESS_KEY"],
+    secret_key=os.environ["MINIO_SECRET_KEY"],
+    secure=True
+)
 
 class VideoRequest(BaseModel):
     keys: list[str]
 
 @app.get("/list-objects")
 def list_objects():
-    objects = client.list_objects(os.environ["MINIO_BUCKET"], "", recursive=False)
+    objects = minio_internal.list_objects(os.environ["MINIO_BUCKET"], "", recursive=False)
 
     result = []
     for obj in objects:
@@ -58,7 +59,7 @@ def make_video(req: VideoRequest):
     try:
         img_paths = []
         for k in keys:
-            data = client.get_object(os.environ["MINIO_BUCKET"], k)
+            data = minio_internal.get_object(os.environ["MINIO_BUCKET"], k)
             content = data.read()
             data.close()
 
@@ -97,14 +98,14 @@ def make_video(req: VideoRequest):
             video_bytes = f.read()
 
         output_key = f"reels/{uuid.uuid4()}.mp4"
-        client.put_object(
+        minio_internal.put_object(
             os.environ["MINIO_BUCKET"],
             output_key,
             data=io.BytesIO(video_bytes),
             length=len(video_bytes),
             content_type="video/mp4"
         )
-        presigned_url = client.presigned_get_object(
+        presigned_url = minio_public.presigned_get_object(
             os.environ["MINIO_BUCKET"],
             output_key,
             expires=timedelta(minutes=10)
