@@ -1,7 +1,9 @@
-import { redirect, useNavigate, useLoaderData, type LoaderFunctionArgs } from "react-router";
-import { useState } from "react";
+import { redirect, useNavigate, useActionData, type LoaderFunctionArgs } from "react-router";
+import { useState, useEffect } from "react";
 import { getUser } from "~/lib/models/auth.server";
 
+import type { ActionFunctionArgs } from "react-router";
+import { generateKeysFromPreference } from "~/lib/models/generate.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await getUser(request);
@@ -12,12 +14,43 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return { user };
 }
 
+export async function action({ request }: ActionFunctionArgs) {
+  const keys = await generateKeysFromPreference(request);
+  return Response.json({ keys });
+}
+
 export default function ReelsPage() {
   const navigate = useNavigate();
-  const { user } = useLoaderData() as { user: { id: string } };
+  const actionData = useActionData() as { keys?: string[] } | undefined;
   const [loading, setLoading] = useState(false);
   const [files, setFiles] = useState<string[]>([]);
   const [preference, setPreference] = useState<"見る" | "遊ぶ" | "食べる">("見る");
+
+  useEffect(() => {
+    if (!actionData?.keys || actionData.keys.length === 0) return;
+    (async () => {
+      setLoading(true);
+      const resVideo = await fetch("/py/make-video", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        cache: "no-store",
+        body: JSON.stringify({ keys: actionData.keys }),
+      });
+      const dataVideo = await resVideo.json();
+      await fetch("/api/complete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          keys: actionData.keys,
+          videoObjectName: dataVideo.video_key,
+          downloadLink: dataVideo.video_url,
+        }),
+      });
+      setLoading(false);
+      navigate("/reels/preview");
+    })();
+  }, [actionData]);
 
   return (
     <div
@@ -47,79 +80,16 @@ export default function ReelsPage() {
         </div>
       </div>
 
-      <button
-        onClick={async () => {
-          if (loading) return;
-          setLoading(true);
-
-          let fetchedFiles: string[] = [];
-          try {
-            const res = await fetch("/api/image", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              credentials: "include",
-              cache: "no-store",
-              body: JSON.stringify({ preference, userId: user.id }),
-            });
-
-            if (!res.ok) {
-              setLoading(false);
-              alert("画像の選定に失敗しました");
-              return;
-            }
-
-            const data = await res.json();
-            if (Array.isArray(data.keys)) {
-              fetchedFiles = data.keys;
-              setFiles(data.keys);
-            }
-          } catch {
-            // fail silently
-          }
-
-          if (fetchedFiles.length === 0) {
-            setLoading(false);
-            return;
-          }
-
-          const resVideo = await fetch("/py/make-video", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            cache: "no-store",
-            body: JSON.stringify({
-              keys: fetchedFiles,
-              preference,
-            }),
-          });
-
-          if (!resVideo.ok) {
-            setLoading(false);
-            alert("動画生成に失敗しました");
-            return;
-          }
-
-          const dataVideo = await resVideo.json();
-
-          await fetch("/api/complete", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify({
-              keys: fetchedFiles,
-              videoObjectName: dataVideo.video_key,
-              downloadLink: dataVideo.video_url,
-            }),
-          });
-
-          setLoading(false);
-
-          navigate("/reels/preview");
-        }}
-        disabled={loading}
-        className={`bg-blue-500 text-white px-8 py-4 rounded-lg hover:bg-blue-600 ${loading ? "opacity-60 cursor-not-allowed" : ""}`}
-      >
-        リール動画を生成（あと∞回）
-      </button>
+      <form method="post">
+        <input type="hidden" name="preference" value={preference} />
+        <button
+          type="submit"
+          disabled={loading}
+          className={`bg-blue-500 text-white px-8 py-4 rounded-lg hover:bg-blue-600 ${loading ? "opacity-60 cursor-not-allowed" : ""}`}
+        >
+          リール動画を生成（あと∞回）
+        </button>
+      </form>
 
       <p className="text-xs text-gray-300 mt-2 text-center">
         リール動画生成可能回数は0:00にリセットされます
