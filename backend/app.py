@@ -23,11 +23,19 @@ app.add_middleware(
 )
 
 client = Minio(
-    os.environ["MINIO_ENDPOINT"],
+    os.environ.get("MINIO_INTERNAL_ENDPOINT", os.environ["MINIO_ENDPOINT"]),
     access_key=os.environ["MINIO_ACCESS_KEY"],
     secret_key=os.environ["MINIO_SECRET_KEY"],
     secure=os.environ.get("USE_SSL", "false") == "true"
 )
+
+# Override base URL for presigned URLs to use public host
+_public = os.environ.get("MINIO_PUBLIC_BASE_URL")
+if _public:
+    try:
+        client._base_url = _public
+    except Exception:
+        pass
 
 class VideoRequest(BaseModel):
     keys: list[str]
@@ -81,6 +89,9 @@ def make_video(req: VideoRequest):
         ]
 
         subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+        if not os.path.exists(video_path) or os.path.getsize(video_path) == 0:
+            raise RuntimeError("ffmpeg failed to produce video. Is ffmpeg installed?")
 
         with open(video_path, "rb") as f:
             video_bytes = f.read()

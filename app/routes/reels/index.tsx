@@ -6,7 +6,7 @@ import { getUser } from "~/lib/models/auth.server";
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await getUser(request);
   if (!user) {
-    throw redirect("/signup");
+    throw redirect("/login");
   }
 
   return { user };
